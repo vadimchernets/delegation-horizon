@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """too_clean.py: flag work logs that look too clean to be true, so an auditor knows where to look first.
 
-Teaches: Table 4a lists ways to game the measure. Several leave a statistical trace in the log itself:
+Teaches: Table 3 lists ways to game the measure. Several leave a statistical trace in the log itself:
 no failure at all, sizes bunched just above a rung threshold, attention minutes that never vary,
 upper-rung pieces with no planted errors, or checks the scorer does not count. This prints, per
 person and domain, which traces are present.

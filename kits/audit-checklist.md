@@ -1,6 +1,6 @@
 # Audit checklist for a delegation record
 
-*Paper: Section 5.8 and Table 4a (ways to game the measure, and the defences).*
+*Paper: Section 5.8 and Table 3 (ways to game the measure, and the defences).*
 *For: organisations, auditors and guarantors who need to trust someone else's record.*
 
 Pick a random share of accepted pieces (for example one in five; `audit_sample.py` draws it with a

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """audit_sample.py: draw the accepted pieces that go to a second, independent check.
 
-Teaches: the audit defence of Table 4a. A record is only as good as its checks, and the cheapest way
+Teaches: the audit defence of Table 3. A record is only as good as its checks, and the cheapest way
 to keep checks independent is to re-check a random share of accepted pieces with a second checker who
 does not know which pieces were drawn in advance. The draw is reproducible: the same log, seed and
 date always give the same pieces, so anyone can confirm that the sample was not hand-picked.

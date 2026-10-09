@@ -1,7 +1,7 @@
 # Codebook: what crosses over from programmers' conversations
 
-*Paper: Section 9 and Table 5.*
-*For: researchers who want to repeat or extend Table 5 on other threads, forums or interviews.*
+*Paper: Section 9 and Table A5.*
+*For: researchers who want to repeat or extend Table A5 on other threads, forums or interviews.*
 
 Code each post or comment (the unit) with one primary code. Two coders work independently, then
 `tools/kappa.py` gives their agreement and writes the disagreements for a reconciliation meeting.
@@ -30,6 +30,6 @@ Report kappa before and after reconciliation; publish the codebook version you u
 4. Run: `python3 tools/kappa.py codes.csv --a coder_a --b coder_b --id item --disagreements dis.csv`.
 5. Meet, fill `agreed_code` in `dis.csv`, and record any change to the definitions as version 1.1.
 6. For each code, search the counterpart outside software for the same period and record it as in
-   Table 5: counterpart, source, crossed over (yes / partly / no).
+   Table A5: counterpart, source, crossed over (yes / partly / no).
 
 A kappa above 0.6 is the usual floor for reporting coded shares; below that, refine the definitions.

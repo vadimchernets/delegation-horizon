@@ -15,9 +15,9 @@
     the rung against the score 91 days earlier.
 - `record_card.py`: record line and card (text, Markdown, portable JSON) from a JSON Lines or spreadsheet log.
 - `export-record.schema.json`: portable record format with hashes of the log and the scorer (Section 10.3).
-- `audit_sample.py`: reproducible random sample of accepted pieces for a second check (Table 4a).
+- `audit_sample.py`: reproducible random sample of accepted pieces for a second check (Table 3).
 - `examples/team-log.*`: a team of four across five domains, with Week, planted errors and a missed one.
-- `predictions/`: the dated predictions of Table 6, version 2 (41 rows, sets A and B, families of linked
+- `predictions/`: the dated predictions of Table A6, version 2 (41 rows, sets A and B, families of linked
   predictions, model forecasts beside each probability), as a DRAFT frozen at OSF registration; resolution rules,
   files for resolving specific predictions, archived baselines, `score.py` and `skill.py`.
 - `checker.html`: the scorer in an offline browser page, tested against `horizon.py`.

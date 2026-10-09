@@ -39,7 +39,7 @@ of the rules (counts, share, windows) are changed only after the pilot and only 
 - On 20% of bank tasks, by-hand time is measured: a qualified specialist does the task without agents
   under observation, timed. These are the anchors for Q2.
 - Every task and every own-work piece gets two blind estimates from qualified specialists of the
-  domain, who do not know who did the work. If the ratio exceeds 1.5, a third rater decides (Table 4a).
+  domain, who do not know who did the work. If the ratio exceeds 1.5, a third rater decides (Table 3).
 - Before rating, raters calibrate on five anchor tasks with measured times and see their error.
   Reason from the desk pre-pilot: uncalibrated model raters differed by a factor of two in their
   overall level, and a stable level offset is the cheapest error to remove.

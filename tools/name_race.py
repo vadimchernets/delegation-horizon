@@ -25,7 +25,7 @@ import urllib.error
 import urllib.parse
 import urllib.request
 
-# Candidates from Tables 2a and 2b of the paper (9 October 2026); edit or pass --names to change.
+# Candidates from Table A2 of the paper (9 October 2026); edit or pass --names to change.
 DEFAULT_NAMES = [
     "agentic engineer", "agent manager", "agent boss", "AI orchestrator", "AI operator", "AI steward",
     "product builder", "builder", "vibe coding", "AI fluency", "agent literacy", "acceptance literacy",

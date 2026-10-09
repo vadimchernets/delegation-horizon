@@ -101,7 +101,7 @@ Ask for the log behind the record; the card says it is available on request. The
    and domain; `--all-irreversible` adds every irreversible piece. Give the sample to a checker who did not see the
    first check.
 3. **Read the pattern, not only the result.** A log with no failures, identical sizes, or every check of one kind is
-   a reason to look closer (Table 4a of the paper lists the ways the measure can be gamed and the defence for each).
+   a reason to look closer (Table 3 of the paper lists the ways the measure can be gamed and the defence for each).
    A rung with `self_review`, `same_family` or `none` behind it is not a rung, and the scorer does not count those.
 4. **Check the reference hours.** They must come from a named task bank or from two raters blind to the person; the
    field `reference_basis` says which.
@@ -142,12 +142,12 @@ spreadsheet log.
 | 5 | `checker.html` | The same scoring in a browser page, offline, for people who do not use a terminal |
 | 5.2 | `tools/log_piece.py`, `integrations/claude-code-hook/`, `kits/acceptance-card.md` | Writing the log: questions instead of JSON, an entry opened after every agent session so failures are not lost, and a card that states "done" before the hand-over |
 | 10.3 | `export-record.schema.json` | Portable record format, with hashes of the log and the scorer |
-| 5.8, Table 4a | `audit_sample.py`, `tools/too_clean.py`, `kits/audit-checklist.md`, `kits/planted-errors-guide.md` | Reproducible audit sample; flags for logs that look too clean; audit checklist; how to prepare and seal planted errors |
+| 5.8, Table 3 | `audit_sample.py`, `tools/too_clean.py`, `kits/audit-checklist.md`, `kits/planted-errors-guide.md` | Reproducible audit sample; flags for logs that look too clean; audit checklist; how to prepare and seal planted errors |
 | 5.8, App. E | `pilot/` | Desk pre-pilot of the thresholds (simulated logs, exact rates, rater noise), a 30-task bank, and the protocol, preregistration draft and consent form of the live pilot |
 | 5.1, 7.2 | `templates/` | Spreadsheet log, task card for a task bank, guarantor record |
 | 3, 4, 6 to 13 | `kits/`, `tools/` | One kit or tool per section: names, tokens in reviews, matched-task study, degree share of postings, guarantor sign-off and product liveness, release checklist by risk, codebook and kappa, a one-day hiring test, pre-release security scan, scope statement. The map is `kits/README.md` |
 | 1, 2, 13 | `sources/` | Register of claims with archived copies, refreshed monthly by a workflow |
-| 11, Table 6 | `predictions/` | The dated predictions (DRAFT), resolution rules, files for resolving specific predictions, and the scorecard tools |
+| 11, Table A6 | `predictions/` | The dated predictions (DRAFT), resolution rules, files for resolving specific predictions, and the scorecard tools |
 | C3 | `brier.py` | Brier score over dated predictions. Byte for byte as printed in the paper |
 | | `tests/` | `python3 -m unittest discover -v` |
 

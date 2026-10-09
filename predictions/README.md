@@ -2,7 +2,7 @@
 
 **Status: DRAFT, not yet registered; frozen at OSF registration.**
 
-`predictions.csv` holds the dated predictions of Table 6 of the paper, one row each: the wording, the measure, the
+`predictions.csv` holds the dated predictions of Table A6 of the paper (Appendix D; Table 4 gives the ten core ones), one row each: the wording, the measure, the
 baseline, the check and final dates, the probability, the rules for came true, did not and unresolved, the fallback
 source, the nearest prior forecast, and who resolves it (a public source or a separately preregistered study).
 

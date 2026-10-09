@@ -1,6 +1,6 @@
 # Planted errors: how to prepare and seal them
 
-*Paper: Section 5.2 (Week and above need a planted error in the window) and Table 4a.*
+*Paper: Section 5.2 (Week and above need a planted error in the window) and Table 3.*
 *For: reviewers, team leads and auditors who prepare tasks for Week-size pieces and above.*
 
 A planted error is a deliberate fault put into the task material before the hand-over. If the person

@@ -17,7 +17,7 @@ Python 3.9 or later and no packages; `checker.html` opens in any browser without
 | 7 Trust, the guarantor | `guarantor-signoff.md`, `../tools/liveness.py` | guarantors, platforms | One-page sign-off; liveness of a frozen sample of products (N1) |
 | 7.1 Vouching | `VOUCHED.md` | maintainers, platforms | Template for admitting newcomers through a voucher |
 | 8 Two markets | `release-checklist-by-risk.md` | product authors | What to do before release, by who will use the product |
-| 9 Crossing over | `coding-codebook.md`, `../tools/kappa.py` | researchers | Codebook for Table 5 and two-coder agreement |
+| 9 Crossing over | `coding-codebook.md`, `../tools/kappa.py` | researchers | Codebook for Table A5 and two-coder agreement |
 | 10.1 Employers and HR | `hiring-test/` | employers, HR | A paid one-day work test in the candidate's domain, with a blind rater and a posting without a degree requirement |
 | 12 Security | `../tools/prerelease-check.sh` | product authors | Runs free secret and vulnerability scanners if installed, then six questions no scanner answers |
 | 12-13 Scope | `scope-statement.md` | anyone printing a rung | What a rung means and does not mean, to attach beside it |

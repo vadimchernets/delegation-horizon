@@ -40,7 +40,7 @@
     "started": {
       "type": "string",
       "format": "date",
-      "description": "Date the hand-over started (ISO format); expected from rules v1.1 (Table 4a: every hand-over logged with its start date). The scorer still reads lines without it and warns. Must not be later than date"
+      "description": "Date the hand-over started (ISO format); expected from rules v1.1 (Table 3: every hand-over logged with its start date). The scorer still reads lines without it and warns. Must not be later than date"
     },
     "reference_hours": {
       "type": "number",
@@ -138,7 +138,7 @@
     },
     "revoked": {
       "type": "boolean",
-      "description": "Optional: a delayed outcome revoked the piece (Table 4b); a revoked piece is unverified"
+      "description": "Optional: a delayed outcome revoked the piece (Table A4); a revoked piece is unverified"
     }
   }
 }

@@ -1,7 +1,7 @@
 # Agent-session hook: never lose a failed piece
 
 The work log of Appendix C1 is only as good as its failures. People write down what worked and forget
-what did not, which inflates the pass share (Table 4a, "hiding failures"). This hook moves the burden
+what did not, which inflates the pass share (Table 3, "hiding failures"). This hook moves the burden
 from memory to the tool: every time an agent session ends, one pending entry is opened, and closing
 it later takes a minute of questions.
 

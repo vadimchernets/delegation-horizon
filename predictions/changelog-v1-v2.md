@@ -37,7 +37,8 @@ Considered and not added: F3p, a point-estimate twin of F3, dropped after the bl
 
 The recommended probability is the midpoint in log odds of the two; the owner fixes the final number at registration.
 
-- F6: author 0.6, pooled models 0.41; the domain argument of Section 6.3.
-- F15: author 0.35, pooled models 0.56; entry-level take-home tasks are usually 2 to 6 hours.
-- F32: author 0.15, pooled models 0.33; large-vendor coding agents are still used mainly by developers.
-- F34: author 0.45, pooled models 0.62; reference hours are judgements and the rule uses the lower bound.
+- F6: author 0.60, pooled models 0.37; the domain argument of Section 6.3.
+- F14: author 0.65, pooled models 0.49; the axes are distinct by construction; the R squared threshold is the main risk.
+- F28b: author 0.40, pooled models 0.20; a doubling time of 4 to 7 months.
+- F32: author 0.15, pooled models 0.31; large-vendor coding agents are still used mainly by developers.
+- F34: author 0.45, pooled models 0.65; reference hours are judgements and the rule uses the lower bound.

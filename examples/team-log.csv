@@ -1,71 +1,71 @@
-person,domain,started,date,reference_hours,reference_basis,attention_minutes,mode,check,agent_saw_check,passed,irreversible,planted_errors,planted_missed,outside_help
-P01,financial tools,2026-04-13,2026-04-22,42,task bank,600,stages,hidden_tests,no,yes,no,0,0,no
-P01,financial tools,2026-05-15,2026-05-22,40,task bank,540,stages,expert,no,yes,no,0,0,no
-P01,financial tools,2026-06-11,2026-06-21,46,task bank,620,stages,hidden_tests,no,yes,no,3,0,no
-P01,financial tools,2026-07-13,2026-07-21,40,task bank,480,stages,real_use,no,yes,yes,0,0,no
-P01,financial tools,2026-08-11,2026-08-20,44,task bank,560,stages,hidden_tests,no,yes,no,2,0,no
-P01,financial tools,2026-09-09,2026-09-19,48,task bank,600,stages,expert,no,yes,no,0,0,no
-P01,financial tools,2026-09-21,2026-09-27,40,task bank,700,stages,expert,no,no,no,0,0,no
-P01,financial tools,,2026-07-16,8,task bank,95,one_piece,expert,no,yes,no,0,0,no
-P01,financial tools,,2026-07-31,9,task bank,95,stages,hidden_tests,no,yes,no,0,0,no
-P01,financial tools,,2026-08-10,10,task bank,95,stages,expert,no,yes,no,0,0,no
-P01,financial tools,,2026-08-25,8,task bank,95,stages,hidden_tests,no,yes,no,0,0,no
-P01,financial tools,,2026-09-06,9,task bank,95,one_piece,expert,no,yes,no,0,0,no
-P01,financial tools,,2026-09-14,10,task bank,95,stages,hidden_tests,no,yes,no,0,0,no
-P01,financial tools,,2026-09-24,8,task bank,95,stages,expert,no,yes,no,0,0,no
-P01,financial tools,,2026-10-01,9,task bank,95,stages,hidden_tests,no,yes,no,0,0,no
-P01,financial tools,,2026-10-05,10,task bank,95,one_piece,expert,no,yes,no,0,0,no
-P01,financial tools,,2026-10-07,8,task bank,95,stages,hidden_tests,no,yes,no,0,0,no
-P01,web applications,,2026-07-13,8,task bank,120,stages,other_family_with_sources,no,yes,no,0,0,no
-P01,web applications,,2026-07-21,9,task bank,120,stages,real_use,no,yes,no,0,0,no
-P01,web applications,,2026-07-29,8,task bank,120,stages,real_use,no,yes,no,0,0,no
-P01,web applications,,2026-08-06,9,task bank,120,stages,other_family_with_sources,no,no,no,0,0,no
-P01,web applications,,2026-08-13,8,task bank,120,stages,real_use,no,yes,no,0,0,no
-P01,web applications,,2026-08-21,9,task bank,120,stages,real_use,no,yes,no,0,0,no
-P01,web applications,,2026-08-29,8,task bank,120,stages,other_family_with_sources,no,yes,no,0,0,no
-P01,web applications,,2026-09-09,9,task bank,120,stages,real_use,no,yes,no,0,0,no
-P01,web applications,,2026-09-18,8,task bank,120,stages,real_use,no,yes,no,0,0,no
-P01,web applications,,2026-09-30,9,task bank,120,stages,other_family_with_sources,no,yes,no,0,0,no
-P02,clinic scheduling,,2026-07-15,8,task bank,150,stages,expert,no,yes,no,0,0,no
-P02,clinic scheduling,,2026-07-22,8,task bank,150,stages,expert,no,yes,no,0,0,no
-P02,clinic scheduling,,2026-07-31,8,task bank,150,stages,expert,no,yes,yes,0,0,no
-P02,clinic scheduling,,2026-08-08,8,task bank,150,stages,expert,no,yes,no,0,0,no
-P02,clinic scheduling,,2026-08-15,8,task bank,150,stages,expert,no,yes,no,0,0,no
-P02,clinic scheduling,,2026-08-23,8,task bank,150,stages,expert,no,no,yes,0,0,no
-P02,clinic scheduling,,2026-08-31,8,task bank,150,stages,expert,no,yes,no,0,0,no
-P02,clinic scheduling,,2026-09-11,8,task bank,150,stages,expert,no,yes,no,0,0,no
-P02,clinic scheduling,,2026-09-20,8,task bank,150,stages,expert,no,yes,yes,0,0,no
-P02,clinic scheduling,,2026-10-02,8,task bank,150,stages,expert,no,yes,no,0,0,no
-P02,clinic scheduling,,2026-08-10,2,task bank,35,one_piece,hidden_tests,no,yes,no,0,0,no
-P02,clinic scheduling,,2026-08-18,2,task bank,35,one_piece,hidden_tests,no,yes,no,0,0,no
-P02,clinic scheduling,,2026-08-26,2,task bank,35,one_piece,hidden_tests,no,yes,no,0,0,no
-P02,clinic scheduling,,2026-09-03,2,task bank,35,one_piece,hidden_tests,no,yes,no,0,0,no
-P02,clinic scheduling,,2026-09-12,2,task bank,35,one_piece,hidden_tests,no,yes,no,0,0,no
-P02,clinic scheduling,,2026-09-21,2,task bank,35,one_piece,hidden_tests,no,yes,no,0,0,no
-P02,clinic scheduling,,2026-09-28,2,task bank,35,one_piece,hidden_tests,no,yes,no,0,0,no
-P02,clinic scheduling,,2026-10-03,2,task bank,35,one_piece,hidden_tests,no,yes,no,0,0,no
-P02,clinic scheduling,,2026-10-06,2,task bank,35,one_piece,hidden_tests,no,yes,no,0,0,no
-P02,clinic scheduling,,2026-10-08,2,task bank,35,one_piece,hidden_tests,no,yes,no,0,0,no
-P03,grant reporting,2026-04-09,2026-04-17,40,task bank,520,stages,expert,no,yes,no,0,0,no
-P03,grant reporting,2026-05-04,2026-05-12,40,task bank,520,stages,expert,no,yes,no,2,0,no
-P03,grant reporting,2026-06-03,2026-06-11,40,task bank,520,stages,expert,no,yes,no,0,0,no
-P03,grant reporting,2026-06-28,2026-07-06,40,task bank,520,stages,expert,no,yes,no,0,0,no
-P03,grant reporting,2026-08-02,2026-08-10,40,task bank,520,stages,expert,no,yes,no,3,1,no
-P03,grant reporting,2026-09-01,2026-09-09,40,task bank,520,stages,expert,no,yes,no,0,0,no
-P03,grant reporting,2026-09-17,2026-09-25,40,task bank,520,stages,expert,no,yes,no,2,0,no
-P03,grant reporting,,2026-07-17,9,task bank,110,stages,hidden_tests,no,yes,no,0,0,no
-P03,grant reporting,,2026-07-25,9,task bank,110,stages,expert,no,yes,no,0,0,no
-P03,grant reporting,,2026-08-04,9,task bank,110,stages,hidden_tests,no,yes,no,0,0,no
-P03,grant reporting,,2026-08-12,9,task bank,110,stages,expert,no,yes,no,0,0,no
-P03,grant reporting,,2026-08-20,9,task bank,110,stages,hidden_tests,no,yes,no,0,0,no
-P03,grant reporting,,2026-08-28,9,task bank,110,stages,expert,no,yes,no,0,0,no
-P03,grant reporting,,2026-09-04,9,task bank,110,stages,hidden_tests,no,yes,no,0,0,no
-P03,grant reporting,,2026-09-13,9,task bank,110,stages,expert,no,yes,no,0,0,no
-P03,grant reporting,,2026-09-22,9,task bank,110,stages,hidden_tests,no,yes,no,0,0,no
-P03,grant reporting,,2026-10-04,9,task bank,110,stages,expert,no,yes,no,0,0,no
-P04,inventory,,2026-08-30,3,task bank,90,stages,expert,no,yes,no,0,0,no
-P04,inventory,,2026-09-06,3,task bank,90,stages,self_review,no,yes,no,0,0,no
-P04,inventory,,2026-09-13,3,task bank,90,stages,hidden_tests,no,no,no,0,0,no
-P04,inventory,,2026-09-20,3,task bank,90,stages,same_family,no,yes,no,0,0,no
-P04,inventory,,2026-09-27,3,task bank,90,stages,expert,no,yes,no,0,0,yes
-P04,inventory,,2026-10-04,3,task bank,90,stages,real_use,no,yes,no,0,0,no
+person,domain,started,date,reference_hours,reference_basis,attention_minutes,mode,check,agent_saw_check,passed,irreversible,planted_errors,planted_missed,outside_help,task_id,model,tools,checker,rater_hours,audit,revoked
+P01,financial tools,2026-04-13,2026-04-22,42,task bank,600,stages,hidden_tests,no,yes,no,0,0,no,,,,,,,
+P01,financial tools,2026-05-15,2026-05-22,40,task bank,540,stages,expert,no,yes,no,0,0,no,,,,,,,
+P01,financial tools,2026-06-11,2026-06-21,46,task bank,620,stages,hidden_tests,no,yes,no,3,0,no,,,,,,,
+P01,financial tools,2026-07-13,2026-07-21,40,task bank,480,stages,real_use,no,yes,yes,0,0,no,,,,,,,
+P01,financial tools,2026-08-11,2026-08-20,44,task bank,560,stages,hidden_tests,no,yes,no,2,0,no,,,,,,,
+P01,financial tools,2026-09-09,2026-09-19,48,task bank,600,stages,expert,no,yes,no,0,0,no,FT-031,,,external accountant,44;52,passed,
+P01,financial tools,2026-09-21,2026-09-27,40,task bank,700,stages,expert,no,no,no,0,0,no,,,,,,,
+P01,financial tools,2026-07-14,2026-07-16,8,task bank,95,one_piece,expert,no,yes,no,0,0,no,,,,,,,
+P01,financial tools,2026-07-28,2026-07-31,9,task bank,95,stages,hidden_tests,no,yes,no,0,0,no,,,,,,,
+P01,financial tools,2026-08-09,2026-08-10,10,task bank,95,stages,expert,no,yes,no,0,0,no,,,,,,,
+P01,financial tools,2026-08-23,2026-08-25,8,task bank,95,stages,hidden_tests,no,yes,no,0,0,no,,,,,,,
+P01,financial tools,2026-09-03,2026-09-06,9,task bank,95,one_piece,expert,no,yes,no,0,0,no,,,,,,,
+P01,financial tools,2026-09-13,2026-09-14,10,task bank,95,stages,hidden_tests,no,yes,no,0,0,no,,,,,,,
+P01,financial tools,2026-09-22,2026-09-24,8,task bank,95,stages,expert,no,yes,no,0,0,no,,,,,,,
+P01,financial tools,2026-09-28,2026-10-01,9,task bank,95,stages,hidden_tests,no,yes,no,0,0,no,,,,,,,
+P01,financial tools,2026-10-04,2026-10-05,10,task bank,95,one_piece,expert,no,yes,no,0,0,no,,,,,,,
+P01,financial tools,2026-10-05,2026-10-07,8,task bank,95,stages,hidden_tests,no,yes,no,0,0,no,,,,,,,
+P01,web applications,2026-07-10,2026-07-13,8,task bank,120,stages,other_family_with_sources,no,yes,no,0,0,no,,,,,,,
+P01,web applications,2026-07-20,2026-07-21,9,task bank,120,stages,real_use,no,yes,no,0,0,no,,,,,,,
+P01,web applications,2026-07-27,2026-07-29,8,task bank,120,stages,real_use,no,yes,no,0,0,no,,,,,,,
+P01,web applications,2026-08-03,2026-08-06,9,task bank,120,stages,other_family_with_sources,no,no,no,0,0,no,,,,,,,
+P01,web applications,2026-08-12,2026-08-13,8,task bank,120,stages,real_use,no,yes,no,0,0,no,,,,,,,
+P01,web applications,2026-08-19,2026-08-21,9,task bank,120,stages,real_use,no,yes,no,0,0,no,,,,,,,
+P01,web applications,2026-08-26,2026-08-29,8,task bank,120,stages,other_family_with_sources,no,yes,no,0,0,no,,,,,,,
+P01,web applications,2026-09-08,2026-09-09,9,task bank,120,stages,real_use,no,yes,no,0,0,no,,,,,,,
+P01,web applications,2026-09-16,2026-09-18,8,task bank,120,stages,real_use,no,yes,no,0,0,no,,,,,,,
+P01,web applications,2026-09-27,2026-09-30,9,task bank,120,stages,other_family_with_sources,no,yes,no,0,0,no,,,,,,,
+P02,clinic scheduling,2026-07-14,2026-07-15,8,task bank,150,stages,expert,no,yes,no,0,0,no,,,,,,,
+P02,clinic scheduling,2026-07-20,2026-07-22,8,task bank,150,stages,expert,no,yes,no,0,0,no,,,,,,,
+P02,clinic scheduling,2026-07-28,2026-07-31,8,task bank,150,stages,expert,no,yes,yes,0,0,no,,,,,,,
+P02,clinic scheduling,2026-08-07,2026-08-08,8,task bank,150,stages,expert,no,yes,no,0,0,no,,,,,,,
+P02,clinic scheduling,2026-08-13,2026-08-15,8,task bank,150,stages,expert,no,yes,no,0,0,no,,,,,,,
+P02,clinic scheduling,2026-08-20,2026-08-23,8,task bank,150,stages,expert,no,no,yes,0,0,no,,,,,,,
+P02,clinic scheduling,2026-08-30,2026-08-31,8,task bank,150,stages,expert,no,yes,no,0,0,no,,,,,,,
+P02,clinic scheduling,2026-09-09,2026-09-11,8,task bank,150,stages,expert,no,yes,no,0,0,no,,,,,,,
+P02,clinic scheduling,2026-09-17,2026-09-20,8,task bank,150,stages,expert,no,yes,yes,0,0,no,,,,,,,
+P02,clinic scheduling,2026-10-01,2026-10-02,8,task bank,150,stages,expert,no,yes,no,0,0,no,,,,,,,
+P02,clinic scheduling,2026-08-08,2026-08-10,2,task bank,35,one_piece,hidden_tests,no,yes,no,0,0,no,,,,,,,
+P02,clinic scheduling,2026-08-15,2026-08-18,2,task bank,35,one_piece,hidden_tests,no,yes,no,0,0,no,,,,,,,
+P02,clinic scheduling,2026-08-25,2026-08-26,2,task bank,35,one_piece,hidden_tests,no,yes,no,0,0,no,,,,,,,
+P02,clinic scheduling,2026-09-01,2026-09-03,2,task bank,35,one_piece,hidden_tests,no,yes,no,0,0,no,,,,,,,
+P02,clinic scheduling,2026-09-09,2026-09-12,2,task bank,35,one_piece,hidden_tests,no,yes,no,0,0,no,,,,,,,
+P02,clinic scheduling,2026-09-20,2026-09-21,2,task bank,35,one_piece,hidden_tests,no,yes,no,0,0,no,,,,,,,
+P02,clinic scheduling,2026-09-26,2026-09-28,2,task bank,35,one_piece,hidden_tests,no,yes,no,0,0,no,,,,,,,
+P02,clinic scheduling,2026-09-30,2026-10-03,2,task bank,35,one_piece,hidden_tests,no,yes,no,0,0,no,,,,,,,
+P02,clinic scheduling,2026-10-05,2026-10-06,2,task bank,35,one_piece,hidden_tests,no,yes,no,0,0,no,,,,,,,
+P02,clinic scheduling,2026-10-06,2026-10-08,2,task bank,35,one_piece,hidden_tests,no,yes,no,0,0,no,,,,,,,
+P03,grant reporting,2026-04-09,2026-04-17,40,task bank,520,stages,expert,no,yes,no,0,0,no,,,,,,,
+P03,grant reporting,2026-05-04,2026-05-12,40,task bank,520,stages,expert,no,yes,no,2,0,no,,,,,,,
+P03,grant reporting,2026-06-03,2026-06-11,40,task bank,520,stages,expert,no,yes,no,0,0,no,,,,,30;52,,
+P03,grant reporting,2026-06-28,2026-07-06,40,task bank,520,stages,expert,no,yes,no,0,0,no,,,,,,,
+P03,grant reporting,2026-08-02,2026-08-10,40,task bank,520,stages,expert,no,yes,no,3,1,no,,,,,,,
+P03,grant reporting,2026-09-01,2026-09-09,40,task bank,520,stages,expert,no,yes,no,0,0,no,,,,,,,
+P03,grant reporting,2026-09-17,2026-09-25,40,task bank,520,stages,expert,no,yes,no,2,0,no,,,,,,,
+P03,grant reporting,2026-07-16,2026-07-17,9,task bank,110,stages,hidden_tests,no,yes,no,0,0,no,,,,,,,
+P03,grant reporting,2026-07-23,2026-07-25,9,task bank,110,stages,expert,no,yes,no,0,0,no,,,,,,,
+P03,grant reporting,2026-08-01,2026-08-04,9,task bank,110,stages,hidden_tests,no,yes,no,0,0,no,,,,,,,
+P03,grant reporting,2026-08-11,2026-08-12,9,task bank,110,stages,expert,no,yes,no,0,0,no,,,,,,,
+P03,grant reporting,2026-08-18,2026-08-20,9,task bank,110,stages,hidden_tests,no,yes,no,0,0,no,,,,,,,
+P03,grant reporting,2026-08-25,2026-08-28,9,task bank,110,stages,expert,no,yes,no,0,0,no,,,,,,,
+P03,grant reporting,2026-09-03,2026-09-04,9,task bank,110,stages,hidden_tests,no,yes,no,0,0,no,,,,,,,
+P03,grant reporting,2026-09-11,2026-09-13,9,task bank,110,stages,expert,no,yes,no,0,0,no,,,,,,,
+P03,grant reporting,2026-09-19,2026-09-22,9,task bank,110,stages,hidden_tests,no,yes,no,0,0,no,,,,,,,
+P03,grant reporting,2026-10-03,2026-10-04,9,task bank,110,stages,expert,no,yes,no,0,0,no,,,,,,,
+P04,inventory,2026-08-28,2026-08-30,3,task bank,90,stages,expert,no,yes,no,0,0,no,,,,,,,
+P04,inventory,2026-09-03,2026-09-06,3,task bank,90,stages,self_review,no,yes,no,0,0,no,,,,,,,
+P04,inventory,2026-09-12,2026-09-13,3,task bank,90,stages,hidden_tests,no,no,no,0,0,no,,,,,,,
+P04,inventory,2026-09-18,2026-09-20,3,task bank,90,stages,same_family,no,yes,no,0,0,no,,,,,,,
+P04,inventory,2026-09-24,2026-09-27,3,task bank,90,stages,expert,no,yes,no,0,0,yes,,,,,,,
+P04,inventory,2026-10-03,2026-10-04,3,task bank,90,stages,real_use,no,yes,no,0,0,no,,,,,,,

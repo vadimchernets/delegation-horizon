@@ -36,7 +36,7 @@ SIZES = {"Quarter": "about 500 reference hours", "Month": "about 160 reference h
 TRUE, FALSE = {"true", "yes", "y", "1"}, {"false", "no", "n", "0"}
 NUMBERS = {"reference_hours": float, "attention_minutes": float,
            "planted_errors": int, "planted_missed": int}
-FLAGS = {"agent_saw_check", "passed", "irreversible", "outside_help"}
+FLAGS = {"agent_saw_check", "passed", "irreversible", "outside_help", "revoked"}
 
 
 def csv_to_records(path):
@@ -47,8 +47,14 @@ def csv_to_records(path):
             row = {k.strip(): (v or "").strip() for k, v in row.items() if k and k.strip()}
             if not any(row.values()):
                 continue
-            if not row.get("started"):
-                row.pop("started", None)
+            for key in horizon.OPTIONAL:                 # an empty optional cell is no field
+                if not row.get(key):
+                    row.pop(key, None)
+            if "rater_hours" in row:                     # "6;10" in a spreadsheet cell
+                try:
+                    row["rater_hours"] = [float(x) for x in row["rater_hours"].replace(",", ";").split(";") if x.strip()]
+                except ValueError:
+                    sys.exit(f"row {n}: rater_hours must be numbers separated by ';', got {row['rater_hours']!r}")
             for key, kind in NUMBERS.items():
                 if key in row:
                     try:

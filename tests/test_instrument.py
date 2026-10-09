@@ -17,10 +17,10 @@ sys.path.insert(0, str(ROOT))
 import horizon  # noqa: E402
 
 AS_OF = dt.date(2026, 10, 9)
-# SHA-256 of the listings as printed in Appendix C2 and C3. If a test below fails, the code here no
+# SHA-256 of the listings as printed in Appendix C2 (rules v1.1) and C3. If a test below fails, the code here no
 # longer matches the paper: correct the paper first, then the code, then these two lines.
 PAPER_SHA = {
-    "horizon.py": "102c808d0cb38a5f9b3dbc28cfa74f108891fce984425dfd301ac955a7dc5641",
+    "horizon.py": "94cd244ed7e36392440173cc12b128c178c55be215bbb9654924df59026aab9c",
     "brier.py": "c7d4a4faa2582a3ad12ad35fe95861999cad13c3990d9fc297d19e4a2588860d",
 }
 
@@ -214,6 +214,77 @@ class ScoreTest(unittest.TestCase):
                 self.assertTrue(r[key].strip(), (r["id"], key))
         r = run("predictions/score.py", "predictions/outcomes-template.csv")
         self.assertIn(f"not yet due: {len(rows)}", r.stdout)
+
+
+class RulesV11Test(unittest.TestCase):
+    """The changes of rules v1.1 (desk pre-pilot, 9 October 2026), one test each."""
+    def month_log(self, failed=0):
+        log = [piece(10, 160, planted_errors=2)] + [piece(d, 160) for d in (60, 120, 180, 240, 300)]
+        for i in range(failed):
+            log[-1 - i]["passed"] = False
+        return log
+
+    def test_month_needs_five_verified_of_six(self):
+        self.assertEqual(horizon.horizon(self.month_log(), AS_OF), "Month")
+        self.assertEqual(horizon.horizon(self.month_log(failed=1), AS_OF), "Month")      # 5 of 6
+        self.assertNotEqual(horizon.horizon(self.month_log(failed=2), AS_OF), "Month")   # 4 of 6
+        four = [piece(10, 160, planted_errors=2)] + [piece(d, 160) for d in (60, 120, 180)]
+        self.assertNotEqual(horizon.horizon(four, AS_OF), "Month")                        # v1: 4 of 4
+
+    def test_irreversible_needs_more_than_another_model_family(self):
+        self.assertFalse(horizon.verified(piece(1, irreversible=True, check="other_family_with_sources")))
+        self.assertTrue(horizon.verified(piece(1, irreversible=False, check="other_family_with_sources")))
+        self.assertTrue(horizon.verified(piece(1, irreversible=True, check="expert")))
+
+    def test_outside_help_is_an_attempt_never_a_pass(self):
+        self.assertFalse(horizon.verified(piece(1, outside_help=True)))
+
+    def test_revoked_or_failed_audit_is_not_verified(self):
+        self.assertFalse(horizon.verified(piece(1, revoked=True)))
+        self.assertFalse(horizon.verified(piece(1, audit="failed")))
+        self.assertTrue(horizon.verified(piece(1, audit="passed")))
+
+    def write(self, records):
+        f = tempfile.NamedTemporaryFile("w", suffix=".jsonl", delete=False, encoding="utf-8")
+        for r in records:
+            r = dict(r, date=r["date"].isoformat())
+            f.write(json.dumps(r) + "\n")
+        f.close()
+        return f.name
+
+    def test_rater_spread_asks_for_a_third_rater(self):
+        log = [piece(d, started=(AS_OF - dt.timedelta(days=d + 1)).isoformat()) for d in range(1, 11)]
+        log[0]["rater_hours"] = [4, 8]
+        r = run("horizon.py", self.write(log), "--as-of", AS_OF)
+        self.assertIn("needs third rater", r.stdout)
+        log[0]["rater_hours"] = [7, 9]
+        self.assertNotIn("needs third rater", run("horizon.py", self.write(log), "--as-of", AS_OF).stdout)
+
+    def test_output_shows_count_checks_and_median(self):
+        r = run("horizon.py", "examples/c4-log.jsonl", "--as-of", AS_OF)
+        self.assertIn("Day (8/10)", r.stdout)
+        self.assertIn("checks: expert 4", r.stdout)
+        self.assertIn("median accepted size 9.0 h", r.stdout)
+
+    def test_c4_record_unchanged(self):
+        r = run("record_card.py", "examples/c4-log.jsonl", "--as-of", AS_OF, "--format", "record")
+        self.assertEqual(r.stdout, "small-business bookkeeping · Day · ×2 · 2026-Q4\n")
+
+    def test_v1_log_without_started_still_scores_with_a_warning(self):
+        log = [piece(d) for d in range(1, 11)]
+        r = run("horizon.py", self.write(log), "--as-of", AS_OF)
+        self.assertEqual(r.returncode, 0, r.stderr)
+        self.assertIn("Day (10/10)", r.stdout)
+        self.assertIn("without started", r.stderr)
+
+    def test_stable_label(self):
+        r = run("horizon.py", "examples/team-log.jsonl", "--as-of", AS_OF, "--stable")
+        self.assertIn("P02: clinic scheduling . below Hour (19/20) stable", r.stdout)
+        self.assertIn("provisional (was below Hour)", r.stdout)
+
+    def test_bad_optional_values_are_refused(self):
+        for extra in ({"audit": "maybe"}, {"revoked": "yes"}, {"rater_hours": [8]}):
+            self.assertNotEqual(run("horizon.py", self.write([piece(1, **extra)])).returncode, 0, extra)
 
 
 class TeamExampleTest(unittest.TestCase):

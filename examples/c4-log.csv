@@ -1,11 +1,11 @@
 person,domain,started,date,reference_hours,reference_basis,attention_minutes,mode,check,agent_saw_check,passed,irreversible,planted_errors,planted_missed,outside_help
-P07,small-business bookkeeping,,2026-07-20,9,two raters,95,stages,expert,no,yes,no,0,0,no
-P07,small-business bookkeeping,,2026-07-28,8,two raters,80,stages,hidden_tests,no,yes,no,0,0,no
-P07,small-business bookkeeping,,2026-08-04,12,two raters,150,one_piece,expert,no,yes,no,0,0,no
-P07,small-business bookkeeping,,2026-08-11,8,two raters,70,stages,self_review,no,yes,no,0,0,no
-P07,small-business bookkeeping,,2026-08-18,10,two raters,110,together,real_use,no,yes,no,0,0,no
-P07,small-business bookkeeping,,2026-08-25,8,two raters,120,stages,expert,no,no,no,0,0,no
-P07,small-business bookkeeping,,2026-09-01,16,two raters,180,one_piece,hidden_tests,no,yes,no,0,0,no
-P07,small-business bookkeeping,,2026-09-08,8,two raters,60,stages,expert,no,yes,yes,0,0,no
-P07,small-business bookkeeping,,2026-09-15,9,two raters,90,together,other_family_with_sources,no,yes,no,0,0,no
-P07,small-business bookkeeping,,2026-09-29,8,two raters,75,stages,hidden_tests,no,yes,no,0,0,no
+P07,small-business bookkeeping,2026-07-17,2026-07-20,9,two raters,95,stages,expert,no,yes,no,0,0,no
+P07,small-business bookkeeping,2026-07-24,2026-07-28,8,two raters,80,stages,hidden_tests,no,yes,no,0,0,no
+P07,small-business bookkeeping,2026-07-29,2026-08-04,12,two raters,150,one_piece,expert,no,yes,no,0,0,no
+P07,small-business bookkeeping,2026-08-09,2026-08-11,8,two raters,70,stages,self_review,no,yes,no,0,0,no
+P07,small-business bookkeeping,2026-08-13,2026-08-18,10,two raters,110,together,real_use,no,yes,no,0,0,no
+P07,small-business bookkeeping,2026-08-21,2026-08-25,8,two raters,120,stages,expert,no,no,no,0,0,no
+P07,small-business bookkeeping,2026-08-24,2026-09-01,16,two raters,180,one_piece,hidden_tests,no,yes,no,0,0,no
+P07,small-business bookkeeping,2026-09-05,2026-09-08,8,two raters,60,stages,expert,no,yes,yes,0,0,no
+P07,small-business bookkeeping,2026-09-11,2026-09-15,9,two raters,90,together,other_family_with_sources,no,yes,no,0,0,no
+P07,small-business bookkeeping,2026-09-27,2026-09-29,8,two raters,75,stages,hidden_tests,no,yes,no,0,0,no

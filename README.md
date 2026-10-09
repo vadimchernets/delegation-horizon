@@ -44,23 +44,29 @@ Try it on the worked example first:
 python3 record_card.py examples/c4-log.csv --as-of 2026-10-09
 ```
 
-### What counts
+### What counts (rules v1.1)
 
 | Rung | Size of one piece | Pieces needed | Window |
 |---|---|---|---|
 | Hour | 1 reference hour | 10 | 91 days |
 | Day | 8 | 10 | 91 days |
 | Week | 40 | 6, at least one with planted errors | 182 days |
-| Month | 160 | 4, at least one with planted errors | 365 days |
+| Month | 160 | 6, at least one with planted errors | 365 days |
 | Quarter | 500 | 3, at least one with planted errors | 365 days |
 
 At least eight of every ten pieces must pass a check of one of four kinds: hidden tests, a qualified expert, real
 use by the intended users, or a model of another family that checked against sources you opened. Every piece whose
-mistakes cannot be undone must pass. From Week upward, one piece must have fallen within the last 91 days, and a
-single planted error you missed blocks Week and above for the window. Gain is verified reference hours divided by
-all your hours of attention in the last 91 days, failures included; work fixed by someone else off the log adds
-nothing to it. The steps are ×1, ×2, ×5, ×20 and ×60. The full rules, and why each exists, are in Section 5 of the
-paper.
+mistakes cannot be undone must pass, and for such a piece another model family is never the only check. From Week
+upward, one piece must have fallen within the last 91 days, and a single planted error you missed blocks Week and
+above for the window. A piece someone helped with off the log counts as an attempt and never as a pass; so does a
+piece whose audit failed or whose result was later revoked. Gain is verified reference hours divided by all your
+hours of attention in the last 91 days, failures included. The steps are ×1, ×2, ×5, ×20 and ×60. The full rules,
+and why each exists, are in Section 5 of the paper; `CHANGELOG.md` lists what changed in v1.1 and why.
+
+`horizon.py` prints the count next to the rung, `Day (8/10)` (verified pieces of the rung's size out of all such
+pieces in its window), the kinds of check behind them and the median accepted size, so a record that only just
+holds, or tasks chosen just above a threshold, show at once. `--stable` also scores the date 91 days earlier and
+labels the rung `stable` or `provisional`.
 
 ## What this score means, and what it does not
 

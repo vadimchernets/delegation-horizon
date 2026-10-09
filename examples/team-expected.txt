@@ -1,5 +1,10 @@
-P01: financial tools . Week . x2 . 2026-Q4  (pieces in last 91 days: 14, not verified: 1; gain 4.03; directive share 21%)
-P01: web applications . Day . x2 . 2026-Q4  (pieces in last 91 days: 10, not verified: 1; gain 3.80; directive share 0%)
-P02: clinic scheduling . below Hour . x2 . 2026-Q4  (pieces in last 91 days: 20, not verified: 1; gain 2.98; directive share 50%)
-P03: grant reporting . Day . x2 . 2026-Q4  (pieces in last 91 days: 13, not verified: 1; gain 3.83; directive share 0%)
-P04: inventory . below Hour . below x1 . 2026-Q4  (pieces in last 91 days: 6, not verified: 3; gain 0.67; directive share 0%)
+P01: financial tools . Week (6/7) . x2 . 2026-Q4  (pieces in last 91 days: 14, not verified: 1; gain 4.03; directive share 21%)
+  checks: hidden_tests 3, expert 3, real_use 1; median accepted size 9.0 h
+P01: web applications . Day (9/10) . x2 . 2026-Q4  (pieces in last 91 days: 10, not verified: 1; gain 3.80; directive share 0%)
+  checks: real_use 6, other_family_with_sources 4; median accepted size 8.0 h
+P02: clinic scheduling . below Hour (19/20) . x2 . 2026-Q4  (pieces in last 91 days: 20, not verified: 1; gain 2.98; directive share 50%)
+  checks: expert 10, hidden_tests 10; median accepted size 2.0 h
+P03: grant reporting . Day (12/13) . x2 . 2026-Q4  (pieces in last 91 days: 13, not verified: 1; gain 3.83; directive share 0%)
+  checks: expert 8, hidden_tests 5; median accepted size 9.0 h; needs third rater
+P04: inventory . below Hour (2/6) . below x1 . 2026-Q4  (pieces in last 91 days: 6, not verified: 4; gain 0.67; directive share 0%)
+  checks: expert 2, self_review 1, hidden_tests 1, same_family 1, real_use 1; median accepted size 3.0 h

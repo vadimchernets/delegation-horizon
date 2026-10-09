@@ -2,6 +2,10 @@
 
 ## 1.0.0 (2026-10-09)
 
+- `sources/claims.csv`: the evidence register filled with 14 rechecked claims (primary or secondary source,
+  quote, archived copy, period, population, measure, who checked); README merged.
+- Cross-references aligned with the paper: predictions F27 and F31 (old ids N1, N7), pilot status in Appendix E;
+  prediction probabilities marked as draft probabilities, fixed on the registration date.
 - `horizon.py` and `brier.py`: the listings of Appendix C2 and C3, byte for byte (a test checks SHA-256).
 - Rules v1.1, from a desk pre-pilot of the thresholds (simulated logs and exact binomial rates; `pilot/`):
   - Month needs six pieces in 365 days, at least five verified (was four of four, which made Month harder to

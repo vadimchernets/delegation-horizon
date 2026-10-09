@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """liveness.py: is each product in a frozen sample still alive on a given date?
 
-Teaches: how prediction N1 of Section 11 is scored. A sample of agent-built products is frozen first
+Teaches: how prediction F27 (Table A6) is scored. A sample of agent-built products is frozen first
 (a CSV with name and url), and the same test is applied to every product at every scoring date, so
 nobody chooses after the fact which products count. A product is "alive" when its address answers
 with a success code; for a GitHub repository it must also have been pushed to within --max-days.

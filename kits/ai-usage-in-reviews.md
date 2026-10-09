@@ -42,4 +42,4 @@ The log behind it is the evidence; `record_card.py` produces the card from the l
 - What failed, and what did you change in how you check?
 - Which of your checks would you trust if the stakes were ten times higher?
 
-*Status: the rungs and thresholds are provisional until the human pilot (Section 5.8).*
+*Status: the rungs and thresholds are provisional until the human pilot (Appendix E).*

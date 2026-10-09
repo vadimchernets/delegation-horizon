@@ -159,8 +159,8 @@ python3 horizon.py examples/c4-log.jsonl --as-of 2026-10-09
 
 ## Scoring the predictions
 
-**The prediction table is a DRAFT, not yet registered; it is frozen at OSF registration.** Until then the
-probabilities and wording may still change, and the history of every change stays in git. After registration the
+**The prediction table is a DRAFT, not yet registered; it is frozen at OSF registration.** Its probabilities are
+draft probabilities, fixed on the registration date; until then they and the wording may still change, and the history of every change stays in git. After registration the
 table is never edited: a new prediction is registered separately and carries its own date.
 
 Copy `predictions/outcomes-template.csv` to `outcomes-2027.csv`, set each status to `came_true`, `did_not`,
@@ -182,7 +182,7 @@ are in `predictions/resolution-rules.md`; `predictions/changelog-v1-v2.md` says 
 
 The scorer trusts the fields it is given. It does not judge whether a check was well chosen, whether reference
 hours are fair, or whether a check was independent beyond its kind and whether the agents saw it; independence is
-confirmed by audit. The thresholds are provisional and are being tested in a pilot (Section 5.8 of the paper); until
+confirmed by audit. The thresholds are provisional: they were desk-tested without people (Appendix E of the paper) and await the pilot with people; until
 the human pilot reports, the record is a research measure, not a basis on its own for hiring, pay or certification
 decisions. A card is a summary of a log: the log is the evidence.
 

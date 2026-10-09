@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """name_race.py: count, year by year, how often each candidate name appears in scholarly records.
 
-Teaches: Section 3 keeps a dated map of names instead of choosing one, and predictions F9 and N7 are
+Teaches: Section 3 keeps a dated map of names instead of choosing one, and predictions F9 and F31 (Table A6) are
 scored by which names gain ground. This script makes that count repeatable by anyone: exact-phrase
 works in OpenAlex and works matching the phrase in Crossref, per name and per year, written to CSV.
 Limits: scholarly counts lag job titles and press usage by a year or more, and Crossref matching is

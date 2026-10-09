@@ -41,8 +41,8 @@ class TableTest(unittest.TestCase):
     def test_ascii_only_no_long_dash(self):
         with open(TABLE, encoding="utf-8") as fh:
             text = fh.read()
-        self.assertIsNone(re.search("[\\u0400-\\u04ff]", text))
-        self.assertNotIn("\\u2014", text)
+        self.assertIsNone(re.search("[\u0400-\u04ff]", text))
+        self.assertNotIn("\u2014", text)
 
 
 class SkillTest(unittest.TestCase):

@@ -6,7 +6,7 @@ date-released: 2026-10-09
 license: MIT
 identifiers:
   - type: doi
-    value: "{{CODE_DOI}}"
+    value: "10.5281/zenodo.23267444"
     description: "This code, archived on Zenodo (release v1.0.0)"
 repository-code: "https://github.com/vadimchernets/delegation-horizon"
 keywords:
@@ -29,4 +29,4 @@ preferred-citation:
   month: 10
   doi: "10.2139/ssrn.7589918"
   url: "https://ssrn.com/abstract=7589918"
-  notes: "Archived on Zenodo: https://doi.org/{{ZENODO_DOI}}. Predictions registered on OSF: https://doi.org/{{OSF_DOI}}."
+  notes: "Archived on Zenodo: https://doi.org/10.5281/zenodo.23267267. Predictions registered on OSF: https://doi.org/10.17605/OSF.IO/VW6P9."

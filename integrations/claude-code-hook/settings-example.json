@@ -1,0 +1,14 @@
+{
+  "hooks": {
+    "SessionEnd": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash /ABSOLUTE/PATH/TO/delegation-horizon/integrations/claude-code-hook/open-handover.sh"
+          }
+        ]
+      }
+    ]
+  }
+}

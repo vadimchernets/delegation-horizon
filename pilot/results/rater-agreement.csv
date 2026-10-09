@@ -1,0 +1,29 @@
+set,measure,who,n,value,median_ratio
+task bank v0 (statement of done),pair_within_x1.5,Anthropic vs Google,30,0.533,1.5
+task bank v0 (statement of done),pair_within_x1.5,Anthropic vs Moonshot,30,0.967,1.25
+task bank v0 (statement of done),pair_within_x1.5,Anthropic vs OpenAI,30,0.7,1.39
+task bank v0 (statement of done),pair_within_x1.5,Google vs Moonshot,30,0.5,1.58
+task bank v0 (statement of done),pair_within_x1.5,Google vs OpenAI,30,0.267,2.0
+task bank v0 (statement of done),pair_within_x1.5,Moonshot vs OpenAI,30,0.733,1.37
+task bank v0 (statement of done),"ICC(2,1)_log_hours",all raters,30,0.891,
+task bank v0 (statement of done),same_rung_size_all_raters,all raters,30,0.6,
+task bank v0 (statement of done),pair_within_x1.5,all pairs pooled,180,0.617,1.5
+measured-time anchor (identifier only),pair_within_x1.5,Anthropic vs Google,14,0.286,2.0
+measured-time anchor (identifier only),pair_within_x1.5,Anthropic vs Moonshot,14,0.429,2.0
+measured-time anchor (identifier only),pair_within_x1.5,Anthropic vs OpenAI,14,0.143,2.75
+measured-time anchor (identifier only),pair_within_x1.5,Google vs Moonshot,14,0.571,1.5
+measured-time anchor (identifier only),pair_within_x1.5,Google vs OpenAI,14,0.286,2.25
+measured-time anchor (identifier only),pair_within_x1.5,Moonshot vs OpenAI,14,0.357,2.0
+measured-time anchor (identifier only),"ICC(2,1)_log_hours",all raters,14,0.596,
+measured-time anchor (identifier only),same_rung_size_all_raters,all raters,14,0.357,
+measured-time anchor (identifier only),pair_within_x1.5,all pairs pooled,84,0.345,2.0
+measured-time anchor (identifier only),within_x1.5_of_measured,Anthropic,14,0.071,0.82
+measured-time anchor (identifier only),within_x2_of_measured,Anthropic,14,0.143,
+measured-time anchor (identifier only),within_x1.5_of_measured,Google,14,0.143,1.84
+measured-time anchor (identifier only),within_x2_of_measured,Google,14,0.357,
+measured-time anchor (identifier only),within_x1.5_of_measured,Moonshot,14,0.286,1.83
+measured-time anchor (identifier only),within_x2_of_measured,Moonshot,14,0.5,
+measured-time anchor (identifier only),within_x1.5_of_measured,OpenAI,14,0.143,2.6
+measured-time anchor (identifier only),within_x2_of_measured,OpenAI,14,0.214,
+measured-time anchor (identifier only),within_x1.5_of_measured,geometric mean of raters,14,0.214,1.48
+measured-time anchor (identifier only),within_x2_of_measured,geometric mean of raters,14,0.429,

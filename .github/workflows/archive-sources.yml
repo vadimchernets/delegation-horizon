@@ -1,0 +1,24 @@
+name: archive-sources
+# Monthly: give every source in sources/claims.csv a dated copy in the Internet Archive.
+on:
+  schedule:
+    - cron: "17 6 1 * *"
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  archive:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: python3 tools/archive_urls.py sources/claims.csv --pause 10
+      - name: Commit new archive links
+        run: |
+          if git diff --quiet sources/claims.csv; then echo "nothing new"; exit 0; fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -am "Archive new source links"
+          git push

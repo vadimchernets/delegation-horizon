@@ -1,0 +1,20 @@
+id,source,url,purpose,snapshot_status
+F1,Anthropic (2026e) Agentic coding and persistent returns to expertise,https://www.anthropic.com/research/claude-code-expertise,"Baseline 34% vs 29%; frozen list of 10 occupations for F1b",to_archive
+F1b,Anthropic (2026e),https://www.anthropic.com/research/claude-code-expertise,Occupation session shares (frozen top 10),to_archive
+F5,Lightcast (2026a) Tracking the agentic AI explosion in jobs,https://lightcast.io/resources/blog/tracking-the-agentic-ai-explosion-in-jobs,Agentic skills list,to_archive
+F5,Lightcast (2026b) Degree requirements still higher for AI jobs,https://lightcast.io/resources/blog/degree-requirements-ai-jobs,Baseline direction,to_archive
+F5,PwC AI Jobs Barometer 2026,https://www.pwc.com/id/en/media-centre/press-release/2026/english/ai-jobs-barometer-en.html,Fallback source,to_archive
+F4a,Gartner (Tyagi 2026) reprint by Tray.ai,https://tray.ai/guides/gartner-govern-vibe-coding/,60% retired by 2028 (also F27),to_archive
+F10,RevenueCat State of subscription apps 2026,https://www.revenuecat.com/state-of-subscription-apps,17% baseline,to_archive
+F10,RevenueCat SOSA 2026 insights,https://www.revenuecat.com/sosa-26-insights/,17% baseline,to_archive
+F21,Anthropic (2026a) Economic Index January 2026,https://www.anthropic.com/research/anthropic-economic-index-january-2026-report,52% vs 45% baseline,to_archive
+F21,Anthropic (2026f) Economic Index June 2026,https://www.anthropic.com/research/economic-index-june-2026-report,Latest share before registration,to_archive
+F23,BLS 2028 SOC revision,https://www.bls.gov/soc/2028/2028_soc_revision.htm,Status of SOC 2028 before registration,to_archive
+F25,Manifold junior developer roles fall by a third by 2030,https://manifold.markets/OliverKuperman/will-the-number-of-junior-developer,Market price on registration day,to_archive
+F25,Manifold US software developers fall more than 15% 2023 to 2028,https://manifold.markets/MatthewBarnett/will-the-number-of-people-employed,Market price on registration day,to_archive
+F22,Manifold non-programmers create small scripts by 2027,https://manifold.markets/jskf/will-it-be-common-for-nonprogrammer-dfc979ea7fec,Nearest market,to_archive
+F26,Burning Glass Institute and HBS 2024,https://www.burningglassinstitute.org/research/skills-based-hiring-2024,One hire in 700 baseline,to_archive
+F28,METR time horizons dashboard,https://metr.org/time-horizons/,80% horizon baseline (3.1 h April 2026; not updated after 8 September 2026),to_archive
+F29,CRA Taulbee findings June 2026,https://cra.org/crn/2026/06/cra-update-new-cra-taulbee-survey-findings-show-record-degree-production-alongside-a-cooling-enrollment-pipeline/,New majors baseline,to_archive
+F33,Veracode 2026 GenAI code security report,https://www.veracode.com/news/llms-are-getting-smarter-but-not-safer-veracode-2026-genai-code-security-report-finds-ai-generated-code-security-has-stalled-at-56%25-pass-rate/,56% pass baseline,to_archive
+F11,Forrester 2026 predictions via iTWire,https://itwire.com/it-industry-news/strategy/forrester-unveils-2026-predictions-for-ai-and-tech-leadership.html,Nearest prior,to_archive

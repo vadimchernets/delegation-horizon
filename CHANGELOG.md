@@ -17,5 +17,10 @@
 - `export-record.schema.json`: portable record format with hashes of the log and the scorer (Section 10.3).
 - `audit_sample.py`: reproducible random sample of accepted pieces for a second check (Table 4a).
 - `examples/team-log.*`: a team of four across five domains, with Week, planted errors and a missed one.
-- `predictions/`: the dated predictions of Table 6 as a DRAFT, frozen at OSF registration, and the scorecard tool.
+- `predictions/`: the dated predictions of Table 6, version 2 (41 rows, sets A and B, families of linked
+  predictions, model forecasts beside each probability), as a DRAFT frozen at OSF registration; resolution rules,
+  files for resolving specific predictions, archived baselines, `score.py` and `skill.py`.
+- `checker.html`: the scorer in an offline browser page, tested against `horizon.py`.
+- `kits/` and `tools/`: one kit or tool per section of the paper (map in `kits/README.md`); `sources/` with a monthly
+  archiving workflow; `integrations/claude-code-hook/`; `pilot/`: the desk pre-pilot and the live pilot protocol.
 - Tests run on every push for Python 3.9 to 3.13.

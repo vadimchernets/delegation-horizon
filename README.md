@@ -38,6 +38,11 @@ kinds of check were used, the median verified size. Add `--format md --out card.
 profile or send to an employer, or `--format record` for the single line a resume needs. Add `--as-of 2026-12-31`
 to score on another date.
 
+No terminal at all? Open `checker.html` in a browser (double-click it), choose your CSV or JSON Lines log, and you
+get the same record and counts as `horizon.py`, with the same rules; the file never leaves your computer and the
+page needs no network. A test runs the page's scorer against `horizon.py` on the worked example and on 40 random
+logs. `python3 tools/log_piece.py my-log.jsonl` writes log lines by asking questions instead.
+
 Try it on the worked example first:
 
 ```sh
@@ -129,16 +134,21 @@ spreadsheet log.
 
 | Paper | File | What it does |
 |---|---|---|
-| 5.2, C2 | `horizon.py` | Scores the horizon and the gain from a JSON Lines log. Byte for byte as printed in the paper |
+| 5.2, C2 | `horizon.py` | Scores the horizon and the gain from a JSON Lines log, rules v1.1. Byte for byte as printed in the paper |
 | C1 | `log.schema.json` | JSON Schema of one log line |
-| C4 | `examples/c4-log.jsonl`, `c4-log.csv`, `c4-expected.txt` | The worked example and the line it must print |
+| C4 | `examples/c4-log.jsonl`, `c4-log.csv`, `c4-expected.txt` | The worked example and the lines it must print |
 | 5.2 | `examples/team-log.jsonl`, `team-log.csv`, `team-expected.txt` | A team of four, five domains, Week and planted errors, and the lines it must print |
 | 5.3 | `record_card.py` | Reads a JSON or spreadsheet log and prints the record and a card (text, Markdown or portable JSON), using `horizon.py` unchanged |
+| 5 | `checker.html` | The same scoring in a browser page, offline, for people who do not use a terminal |
+| 5.2 | `tools/log_piece.py`, `integrations/claude-code-hook/`, `kits/acceptance-card.md` | Writing the log: questions instead of JSON, an entry opened after every agent session so failures are not lost, and a card that states "done" before the hand-over |
 | 10.3 | `export-record.schema.json` | Portable record format, with hashes of the log and the scorer |
-| 5.8, Table 4a | `audit_sample.py` | Reproducible random sample of accepted pieces for a second, independent check |
+| 5.8, Table 4a | `audit_sample.py`, `tools/too_clean.py`, `kits/audit-checklist.md`, `kits/planted-errors-guide.md` | Reproducible audit sample; flags for logs that look too clean; audit checklist; how to prepare and seal planted errors |
+| 5.8, App. E | `pilot/` | Desk pre-pilot of the thresholds (simulated logs, exact rates, rater noise), a 30-task bank, and the protocol, preregistration draft and consent form of the live pilot |
 | 5.1, 7.2 | `templates/` | Spreadsheet log, task card for a task bank, guarantor record |
-| 11, Table 6 | `predictions/predictions.csv` | The dated predictions: wording, measure, baseline, dates, probability, the rules for came true and did not, fallback source |
-| 11.4, C3 | `predictions/score.py`, `outcomes-template.csv`, `brier.py` | The annual scorecard, refusing to drop or add a prediction; `brier.py` byte for byte as printed in the paper |
+| 3, 4, 6 to 13 | `kits/`, `tools/` | One kit or tool per section: names, tokens in reviews, matched-task study, degree share of postings, guarantor sign-off and product liveness, release checklist by risk, codebook and kappa, a one-day hiring test, pre-release security scan, scope statement. The map is `kits/README.md` |
+| 1, 2, 13 | `sources/` | Register of claims with archived copies, refreshed monthly by a workflow |
+| 11, Table 6 | `predictions/` | The dated predictions (DRAFT), resolution rules, files for resolving specific predictions, and the scorecard tools |
+| C3 | `brier.py` | Brier score over dated predictions. Byte for byte as printed in the paper |
 | | `tests/` | `python3 -m unittest discover -v` |
 
 Check the worked example yourself:
@@ -163,6 +173,10 @@ python3 predictions/score.py outcomes-2027.csv
 The probabilities are read from the frozen table, never from your file. Every prediction must appear; an
 unresolved one is never counted as a success. A forecast at 35% that misses says little on its own: the Brier
 score over the set is what tells a calibrated forecaster from a lucky one (always saying 0.5 gives 0.250).
+`python3 predictions/skill.py outcomes-2027.csv` adds the rest of Section 11.4: scores by set and by family of
+linked predictions, the share resolved, a worst bound that counts every overdue unresolved prediction as wrong,
+and the skill score against a flat 0.5, the pooled model forecasters and market prices where they exist. The rules
+are in `predictions/resolution-rules.md`; `predictions/changelog-v1-v2.md` says what changed in the table and why.
 
 ## Scope
 

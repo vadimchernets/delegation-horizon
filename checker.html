@@ -1,0 +1,270 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Work Log Checker</title>
+<!--
+checker.html: an offline checker for the work log of Appendix C1.
+Teaches: the same rules as horizon.py, run in the browser on a JSON Lines or CSV log, so a person who
+does not use a terminal gets the same dated record. Nothing is sent anywhere: the file is read locally.
+Limits: it is a schema check plus the scorer, nothing more. It gives no advice and no next step.
+If horizon.py and this page ever disagree, horizon.py is the reference (tests/test_tools.py compares them).
+Licence: MIT
+-->
+<style>
+:root { --bg: #ffffff; --fg: #1d1d1f; --muted: #5f6368; --line: #d7d9dc; --ok: #146c2e; --bad: #b3261e; --card: #f6f7f8; }
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) { --bg: #16181a; --fg: #e8eaed; --muted: #a0a4a8; --line: #33373b; --ok: #6dd58c; --bad: #ff8a80; --card: #1f2225; }
+}
+:root[data-theme="dark"] { --bg: #16181a; --fg: #e8eaed; --muted: #a0a4a8; --line: #33373b; --ok: #6dd58c; --bad: #ff8a80; --card: #1f2225; }
+body { background: var(--bg); color: var(--fg); font: 16px/1.5 system-ui, -apple-system, Segoe UI, sans-serif; margin: 0; padding: 16px; }
+main { max-width: 860px; margin: 0 auto; }
+h1 { font-size: 1.5rem; margin: 0 0 4px; }
+p.lead { color: var(--muted); margin-top: 0; }
+.box { border: 1px solid var(--line); border-radius: 8px; padding: 12px; background: var(--card); margin: 12px 0; }
+label { display: inline-block; margin-right: 12px; }
+textarea { width: 100%; box-sizing: border-box; min-height: 140px; font: 13px ui-monospace, Menlo, monospace; background: var(--bg); color: var(--fg); border: 1px solid var(--line); border-radius: 6px; }
+button, input { font: inherit; }
+pre { white-space: pre-wrap; word-break: break-word; font: 13px ui-monospace, Menlo, monospace; margin: 0; }
+.ok { color: var(--ok); } .bad { color: var(--bad); }
+</style>
+</head>
+<body>
+<main>
+<h1>Work log checker</h1>
+<p class="lead">Checks a work log (JSON Lines or CSV, the columns of templates/work-log.csv) against the rules of Appendix C1 and prints the dated record, the same lines horizon.py prints. The file stays on this computer.</p>
+<div class="box">
+  <label>Log file <input type="file" id="file" accept=".jsonl,.json,.csv,.txt"></label>
+  <label>As of <input type="date" id="asof"></label>
+  <label><input type="checkbox" id="stable"> also score 91 days earlier (stable or provisional)</label>
+  <button id="run">Check</button>
+  <p>Or paste the log here:</p>
+  <textarea id="text" spellcheck="false"></textarea>
+</div>
+<div class="box"><pre id="out">No log checked yet.</pre></div>
+</main>
+
+<script type="application/json" id="rules">
+{"rungs": [["Quarter", 500.0, 3, 365], ["Month", 160.0, 6, 365], ["Week", 40.0, 6, 182], ["Day", 8.0, 10, 91], ["Hour", 1.0, 10, 91]],
+ "planted_from": 40.0, "gain_steps": [60, 20, 5, 2, 1], "gain_window": 91, "pass_share": 0.8, "rater_spread": 1.5,
+ "independent": ["hidden_tests", "expert", "real_use", "other_family_with_sources"],
+ "checks": ["hidden_tests", "expert", "real_use", "other_family_with_sources", "same_family", "self_review", "none"],
+ "modes": ["one_piece", "stages", "together"],
+ "keys": ["person", "domain", "date", "reference_hours", "reference_basis", "attention_minutes", "mode", "check",
+          "agent_saw_check", "passed", "irreversible", "planted_errors", "planted_missed", "outside_help"],
+ "optional": ["started", "task_id", "model", "tools", "checker", "rater_hours", "audit", "revoked"]}
+</script>
+
+<script id="scorer">
+/* The scorer: a line-by-line port of horizon.py. Pure functions, no page access, so the tests run it in node. */
+function makeScorer(R) {
+  var INDEP = new Set(R.independent), CHECKS = new Set(R.checks), MODES = new Set(R.modes);
+  var KEYS = new Set(R.keys), OPT = new Set(R.optional);
+  var TRUE = new Set(["true", "yes", "y", "1"]), FALSE = new Set(["false", "no", "n", "0"]);
+  var NUM = {reference_hours: 1, attention_minutes: 1, planted_errors: 1, planted_missed: 1};
+  var FLAGS = new Set(["agent_saw_check", "passed", "irreversible", "outside_help"]);
+
+  function fail(msg) { var e = new Error(msg); e.logError = true; throw e; }
+  function day(s, n) {
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(String(s))) fail("line " + n + ": date " + JSON.stringify(s) + " is not YYYY-MM-DD");
+    var t = Date.UTC(+s.slice(0, 4), +s.slice(5, 7) - 1, +s.slice(8, 10));
+    if (isNaN(t) || new Date(t).toISOString().slice(0, 10) !== s) fail("line " + n + ": " + s + " is not a real date");
+    return Math.round(t / 86400000);
+  }
+  function splitCsvLine(line) {
+    var out = [], cur = "", q = false;
+    for (var i = 0; i < line.length; i++) {
+      var c = line[i];
+      if (q) { if (c === '"' && line[i + 1] === '"') { cur += '"'; i++; } else if (c === '"') q = false; else cur += c; }
+      else if (c === '"') q = true; else if (c === ",") { out.push(cur); cur = ""; } else cur += c;
+    }
+    out.push(cur);
+    return out;
+  }
+  function csvToObjects(text) {
+    var lines = text.replace(/^﻿/, "").split(/\r?\n/), head = splitCsvLine(lines[0]).map(function (h) { return h.trim(); });
+    var rows = [];
+    for (var i = 1; i < lines.length; i++) {
+      if (!lines[i].trim()) continue;
+      var cells = splitCsvLine(lines[i]), row = {}, n = i + 1;
+      head.forEach(function (h, j) { if (h) row[h] = (cells[j] || "").trim(); });
+      if (!Object.keys(row).some(function (k) { return row[k]; })) continue;
+      if (!row.started) delete row.started;
+      Object.keys(NUM).forEach(function (k) {
+        if (k in row) { var v = Number(row[k]); if (row[k] === "" || isNaN(v)) fail("row " + n + ": " + k + " must be a number, got " + JSON.stringify(row[k])); row[k] = v; }
+      });
+      FLAGS.forEach(function (k) {
+        if (k in row) { var w = row[k].toLowerCase(); if (!TRUE.has(w) && !FALSE.has(w)) fail("row " + n + ": " + k + " must be yes or no, got " + JSON.stringify(row[k])); row[k] = TRUE.has(w); }
+      });
+      rows.push(row);
+    }
+    return rows;
+  }
+  function parse(text) {
+    var trimmed = text.replace(/^﻿/, "").trim();
+    if (!trimmed) fail("the log is empty");
+    if (trimmed[0] !== "{") return csvToObjects(trimmed);
+    var rows = [];
+    trimmed.split(/\r?\n/).forEach(function (line, i) {
+      if (!line.trim()) return;
+      try { rows.push(JSON.parse(line)); } catch (e) { fail("line " + (i + 1) + ": not valid JSON"); }
+    });
+    return rows;
+  }
+  function validate(rows, undated) {
+    undated = undated || {n: 0};
+    return rows.map(function (r, i) {
+      var n = i + 1, have = Object.keys(r);
+      var unknown = have.filter(function (k) { return !KEYS.has(k) && !OPT.has(k); }).sort();
+      var missing = R.keys.filter(function (k) { return !(k in r); }).sort();
+      if (unknown.length || missing.length) fail("line " + n + ": unknown " + JSON.stringify(unknown) + ", missing " + JSON.stringify(missing));
+      if (!CHECKS.has(r.check) || !MODES.has(r.mode)) fail("line " + n + ": check or mode is not one of the allowed values");
+      if (!(Number(r.reference_hours) > 0) || !(Number(r.attention_minutes) >= 0)) fail("line " + n + ": reference hours must be positive, minutes not negative");
+      var pe = Math.trunc(Number(r.planted_errors)), pm = Math.trunc(Number(r.planted_missed));
+      if (!(pm >= 0 && pm <= pe)) fail("line " + n + ": planted_missed must lie between 0 and planted_errors");
+      if (typeof r.outside_help !== "boolean" || ("revoked" in r && typeof r.revoked !== "boolean"))
+        fail("line " + n + ": outside_help and revoked must be true or false");
+      if (["none", "passed", "failed"].indexOf("audit" in r ? r.audit : "none") < 0) fail("line " + n + ": audit must be none, passed or failed");
+      if ("rater_hours" in r && (!Array.isArray(r.rater_hours) || r.rater_hours.length < 2 || Math.min.apply(null, r.rater_hours.map(Number)) <= 0))
+        fail("line " + n + ": rater_hours needs two or more positive estimates");
+      if (!("started" in r)) undated.n++;
+      var o = Object.assign({}, r); o.day = day(r.date, n);
+      if ("started" in r && day(r.started, n) > o.day) fail("line " + n + ": started must not be later than date");
+      return o;
+    });
+  }
+  function verified(r) {
+    return r.passed === true && INDEP.has(r.check) && r.agent_saw_check === false && Math.trunc(Number(r.planted_missed)) === 0
+      && !r.outside_help && !(r.irreversible && r.check === "other_family_with_sources")
+      && r.audit !== "failed" && !(r.revoked || false);
+  }
+  function rungHolds(pieces, hours, minimum, asOf, days) {
+    var start = asOf - days;
+    var win = pieces.filter(function (r) { return start < r.day && r.day <= asOf; });
+    var big = win.filter(function (r) { return Number(r.reference_hours) >= hours; });
+    if (big.length < minimum) return false;
+    if (big.filter(verified).length / big.length < R.pass_share) return false;
+    if (big.some(function (r) { return r.irreversible && !verified(r); })) return false;
+    if (hours >= R.planted_from) {
+      if (!big.some(function (r) { return Math.trunc(Number(r.planted_errors)) > 0; })) return false;
+      if (win.some(function (r) { return Math.trunc(Number(r.planted_missed)) > 0; })) return false;
+    }
+    if (days > R.gain_window) {
+      var recent = asOf - R.gain_window;
+      if (!big.some(function (r) { return verified(r) && r.day > recent; })) return false;
+    }
+    return true;
+  }
+  function horizon(pieces, asOf) {
+    for (var i = 0; i < R.rungs.length; i++) {
+      var g = R.rungs[i];
+      if (rungHolds(pieces, g[1], g[2], asOf, g[3])) return g[0];
+    }
+    return "below Hour";
+  }
+  function rungPieces(pieces, name, asOf) {
+    /* Pieces of the rung's size in its window (Hour's for "below Hour"): what the count is out of. */
+    var g = R.rungs.filter(function (x) { return x[0] === name || (name === "below Hour" && x[0] === "Hour"); })[0];
+    return pieces.filter(function (r) { return asOf - g[3] < r.day && r.day <= asOf && Number(r.reference_hours) >= g[1]; });
+  }
+  function median(xs) {
+    var a = xs.slice().sort(function (x, y) { return x - y; }), m = Math.floor(a.length / 2);
+    return a.length % 2 ? a[m] : (a[m - 1] + a[m]) / 2;
+  }
+  function gain(pieces) {
+    var done = 0, spent = 0;
+    pieces.forEach(function (r) {
+      if (verified(r) && !r.outside_help) done += Number(r.reference_hours);
+      spent += Number(r.attention_minutes);
+    });
+    spent /= 60;
+    return spent === 0 ? null : done / spent;
+  }
+  function pyFixed(x, d) {
+    /* Python's fixed-point formatting: exact value, ties to even (JS toFixed breaks ties upward). */
+    var s = x.toFixed(60), i = s.indexOf("."), tail = s.slice(i + 1 + d);
+    if (!/^50*$/.test(tail)) return x.toFixed(d);
+    var kept = d ? s.slice(0, i + 1 + d) : s.slice(0, i);
+    return (+kept.slice(-1)) % 2 === 0 ? kept : x.toFixed(d);
+  }
+  function step(g) {
+    if (g === null) return "n/a";
+    for (var i = 0; i < R.gain_steps.length; i++) if (g >= R.gain_steps[i]) return "x" + R.gain_steps[i];
+    return "below x1";
+  }
+  function score(text, asOfIso, stable, undated) {
+    var asOf = day(asOfIso, "as-of");
+    var longest = Math.max.apply(null, R.rungs.map(function (g) { return g[3]; })) + (stable ? R.gain_window : 0);
+    var groups = {};
+    validate(parse(text), undated).forEach(function (r) {
+      if (asOf - longest < r.day && r.day <= asOf) {
+        var k = JSON.stringify([r.person, r.domain]);
+        (groups[k] = groups[k] || []).push(r);
+      }
+    });
+    var y = +asOfIso.slice(0, 4), m = +asOfIso.slice(5, 7);
+    var quarter = y + "-Q" + (Math.floor((m - 1) / 3) + 1);
+    var recentStart = asOf - R.gain_window;
+    var out = [];
+    Object.keys(groups).sort().forEach(function (k) {
+      var pd = JSON.parse(k), pieces = groups[k];
+      var recent = pieces.filter(function (r) { return r.day > recentStart; });
+      var g = gain(recent), shown = g === null ? "n/a" : pyFixed(g, 2);
+      var failed = recent.filter(function (r) { return !verified(r); }).length;
+      var directive = recent.length ? recent.filter(function (r) { return r.mode === "one_piece"; }).length / recent.length : 0;
+      var rung = horizon(pieces, asOf), counted = rungPieces(pieces, rung, asOf), label = "";
+      if (stable) {
+        var before = horizon(pieces, asOf - R.gain_window);
+        label = before === rung ? " stable" : " provisional (was " + before + ")";
+      }
+      out.push(pd[0] + ": " + pd[1] + " . " + rung + " (" + counted.filter(verified).length + "/" + counted.length + ")" + label +
+        " . " + step(g) + " . " + quarter + "  (pieces in last 91 days: " + recent.length + ", not verified: " + failed +
+        "; gain " + shown + "; directive share " + pyFixed(directive * 100, 0) + "%)");
+      var order = [], count = {};
+      counted.forEach(function (r) { if (!(r.check in count)) { count[r.check] = 0; order.push(r.check); } count[r.check]++; });
+      order.sort(function (a, b) { return count[b] - count[a]; });
+      var sizes = recent.filter(function (r) { return r.passed; }).map(function (r) { return Number(r.reference_hours); });
+      var med = sizes.length ? pyFixed(median(sizes), 1) + " h" : "n/a";
+      var spread = pieces.some(function (r) {
+        if (!("rater_hours" in r)) return false;
+        var h = r.rater_hours.map(Number);
+        return Math.max.apply(null, h) / Math.min.apply(null, h) > R.rater_spread;
+      });
+      out.push("  checks: " + (order.map(function (c) { return c + " " + count[c]; }).join(", ") || "none") +
+        "; median accepted size " + med + (spread ? "; needs third rater" : ""));
+    });
+    return out;
+  }
+  return {score: score, parse: parse, validate: validate};
+}
+if (typeof module !== "undefined") module.exports = makeScorer;
+</script>
+
+<script>
+(function () {
+  if (typeof document === "undefined") return;
+  var scorer = makeScorer(JSON.parse(document.getElementById("rules").textContent));
+  var asof = document.getElementById("asof"), out = document.getElementById("out"), text = document.getElementById("text");
+  asof.value = new Date().toISOString().slice(0, 10);
+  document.getElementById("file").addEventListener("change", function (e) {
+    var f = e.target.files[0]; if (!f) return;
+    var rd = new FileReader(); rd.onload = function () { text.value = rd.result; run(); }; rd.readAsText(f);
+  });
+  document.getElementById("run").addEventListener("click", run);
+  function run() {
+    try {
+      var undated = {n: 0};
+      var lines = scorer.score(text.value, asof.value, document.getElementById("stable").checked, undated);
+      if (undated.n) lines.push("", "warning: " + undated.n + " lines without started (expected from rules v1.1)");
+      out.className = "ok";
+      out.textContent = lines.length ? lines.join("\n") : "The log is valid, but no piece falls in the last 365 days before the date.";
+    } catch (e) {
+      out.className = "bad";
+      out.textContent = e.logError ? "The log does not pass the check: " + e.message : "Unexpected error: " + e.message;
+    }
+  }
+})();
+</script>
+</body>
+</html>

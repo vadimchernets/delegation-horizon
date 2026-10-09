@@ -1,0 +1,30 @@
+P(earn rung), binomial | full rule via horizon.py, true pass rate 0.8:
+  v1    Hour     8/10 in 91d: 0.678 | 0.678; same verdict next window 0.563
+  v1    Day      8/10 in 91d: 0.678 | 0.677; same verdict next window 0.563
+  v1    Week     5/6 in 182d: 0.655 | 0.663; same verdict next window 0.548
+  v1    Month    4/4 in 365d: 0.410 | 0.410; same verdict next window 0.516
+  v1    Quarter  3/3 in 365d: 0.512 | 0.512; same verdict next window 0.500
+  v1.1  Hour     8/10 in 91d: 0.678 | 0.675; same verdict next window 0.563
+  v1.1  Day      8/10 in 91d: 0.678 | 0.682; same verdict next window 0.563
+  v1.1  Week     5/6 in 182d: 0.655 | 0.657; same verdict next window 0.548
+  v1.1  Month    5/6 in 365d: 0.655 | 0.655; same verdict next window 0.548
+  v1.1  Quarter  3/3 in 365d: 0.512 | 0.511; same verdict next window 0.500
+Week 5/6 and Day 8/10 swap order at p = 0.764 (below it Week is the easier rung)
+Month 6 (5/6) and Quarter 3/3 swap order at p = 0.559; Month 4/4 is harder than Quarter 3/3 at every p
+Sensitivity at Day (simulated logs):
+  count  8, share 0.7: earn 0.516, change 0.218
+  count  8, share 0.8: earn 0.376, change 0.079
+  count  8, share 0.9: earn 0.231, change 0.149
+  count 10, share 0.7: earn 0.397, change 0.100
+  count 10, share 0.8: earn 0.297, change 0.000
+  count 10, share 0.9: earn 0.189, change 0.108
+  count 12, share 0.7: earn 0.274, change 0.163
+  count 12, share 0.8: earn 0.204, change 0.093
+  count 12, share 0.9: earn 0.125, change 0.172
+Rater noise at the Day boundary (80% of rater pairs within x1.5):
+  true  6.0 h -> counted as Day-size 0.035
+  true  7.0 h -> counted as Day-size 0.199
+  true  7.5 h -> counted as Day-size 0.342
+  true  8.5 h -> counted as Day-size 0.649
+  true  9.0 h -> counted as Day-size 0.772
+  true 10.0 h -> counted as Day-size 0.921

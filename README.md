@@ -14,7 +14,11 @@ delegation horizon**); for every hour of their own attention they get at least t
 
 | | |
 |---|---|
-| **Paper** | Working paper, October 2026; the SSRN record, the archived copy and the OSF registration of the predictions are linked here as they are posted |
+| **Paper, version of record** | [SSRN 7589918](https://ssrn.com/abstract=7589918) · DOI [10.2139/ssrn.7589918](https://doi.org/10.2139/ssrn.7589918) |
+| **Paper, archived** | [{{ZENODO_DOI}}](https://doi.org/{{ZENODO_DOI}}) |
+| **Paper, full text on GitHub** | [vadimchernets/papers/after-the-programmer-divide](https://github.com/vadimchernets/papers/tree/main/after-the-programmer-divide) |
+| **Predictions, registered on OSF** | [{{OSF_DOI}}](https://doi.org/{{OSF_DOI}}) |
+| **This code, archived** | [{{CODE_DOI}}](https://doi.org/{{CODE_DOI}}) |
 | **Tests** | `python3 -m unittest discover -v`, run on every push for Python 3.9 to 3.13 |
 
 Python 3.9 or later, standard library only. No accounts, no keys, no network: everything runs on your own computer

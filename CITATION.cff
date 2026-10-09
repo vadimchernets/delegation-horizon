@@ -4,6 +4,10 @@ title: "Delegation horizon: the measurement instrument of 'After the Programmer 
 version: 1.0.0
 date-released: 2026-10-09
 license: MIT
+identifiers:
+  - type: doi
+    value: "{{CODE_DOI}}"
+    description: "This code, archived on Zenodo (release v1.0.0)"
 repository-code: "https://github.com/vadimchernets/delegation-horizon"
 keywords:
   - verified delegation horizon
@@ -23,4 +27,6 @@ preferred-citation:
       given-names: Vadym
   year: 2026
   month: 10
-  url: "https://github.com/vadimchernets/delegation-horizon"
+  doi: "10.2139/ssrn.7589918"
+  url: "https://ssrn.com/abstract=7589918"
+  notes: "Archived on Zenodo: https://doi.org/{{ZENODO_DOI}}. Predictions registered on OSF: https://doi.org/{{OSF_DOI}}."

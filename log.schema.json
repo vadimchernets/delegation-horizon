@@ -1,0 +1,28 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/vadimchernets/delegation-horizon/log.schema.json",
+  "title": "Work log line for the verified delegation horizon",
+  "description": "One line of a JSON Lines file per piece of work handed to agents, written when the piece is accepted, rejected or abandoned (Appendix C1 of the paper). Failed and abandoned pieces stay in the log. horizon.py enforces the same rules without needing a schema library.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["person", "domain", "date", "reference_hours", "reference_basis", "attention_minutes", "mode",
+               "check", "agent_saw_check", "passed", "irreversible", "planted_errors", "planted_missed", "outside_help"],
+  "properties": {
+    "person": {"type": "string", "minLength": 1, "description": "A pseudonymous label, never a real name"},
+    "domain": {"type": "string", "minLength": 1, "description": "The domain in which the work was accepted"},
+    "date": {"type": "string", "format": "date", "description": "Date of acceptance, rejection or abandonment, when the line is written (ISO format)"},
+    "started": {"type": "string", "format": "date", "description": "Optional: date the hand-over started (ISO format); must not be later than date"},
+    "reference_hours": {"type": "number", "exclusiveMinimum": 0, "description": "By-hand hours of a qualified specialist for the whole deliverable"},
+    "reference_basis": {"type": "string", "minLength": 1, "description": "Where the reference came from: a named task bank or two raters"},
+    "attention_minutes": {"type": "number", "minimum": 0, "description": "The person's minutes of planning, instructing, reading, checking and fixing"},
+    "mode": {"enum": ["one_piece", "stages", "together"], "description": "one_piece counts toward the directive share of Section 5.7"},
+    "check": {"enum": ["hidden_tests", "expert", "real_use", "other_family_with_sources", "same_family", "self_review", "none"],
+              "description": "Only the first four are independent; same_family, self_review and none never verify a piece"},
+    "agent_saw_check": {"type": "boolean", "description": "Whether the agents could see the check (must be false to count)"},
+    "passed": {"type": "boolean", "description": "Whether the check passed (false for failed or abandoned pieces)"},
+    "irreversible": {"type": "boolean", "description": "Whether a mistake in this kind of work cannot be undone (this piece must then pass)"},
+    "planted_errors": {"type": "integer", "minimum": 0, "description": "How many errors were planted in the task before hand-over"},
+    "planted_missed": {"type": "integer", "minimum": 0, "description": "How many of them the person failed to catch; must not exceed planted_errors. Any miss makes the piece unverified and blocks Week and above in the window"},
+    "outside_help": {"type": "boolean", "description": "Whether a colleague or contractor helped off the log (such a piece adds nothing to the numerator of gain)"}
+  }
+}

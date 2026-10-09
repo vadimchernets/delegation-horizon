@@ -1,0 +1,26 @@
+cff-version: 1.2.0
+message: "If you use this code or the measure, please cite the paper it accompanies."
+title: "Delegation horizon: the measurement instrument of 'After the Programmer Divide'"
+version: 1.0.0
+date-released: 2026-10-09
+license: MIT
+repository-code: "https://github.com/vadimchernets/delegation-horizon"
+keywords:
+  - verified delegation horizon
+  - amplification gain
+  - AI agents
+  - preregistered predictions
+  - Brier score
+authors:
+  - family-names: Chernets
+    given-names: Vadym
+    orcid: "https://orcid.org/0009-0007-4845-3163"
+preferred-citation:
+  type: article
+  title: "After the Programmer Divide: One Measure for People Who Build Through AI Agents"
+  authors:
+    - family-names: Chernets
+      given-names: Vadym
+  year: 2026
+  month: 10
+  url: "https://github.com/vadimchernets/delegation-horizon"

@@ -1,0 +1,5 @@
+P01: financial tools . Week . x2 . 2026-Q4  (pieces in last 91 days: 14, not verified: 1; gain 4.03; directive share 21%)
+P01: web applications . Day . x2 . 2026-Q4  (pieces in last 91 days: 10, not verified: 1; gain 3.80; directive share 0%)
+P02: clinic scheduling . below Hour . x2 . 2026-Q4  (pieces in last 91 days: 20, not verified: 1; gain 2.98; directive share 50%)
+P03: grant reporting . Day . x2 . 2026-Q4  (pieces in last 91 days: 13, not verified: 1; gain 3.83; directive share 0%)
+P04: inventory . below Hour . below x1 . 2026-Q4  (pieces in last 91 days: 6, not verified: 3; gain 0.67; directive share 0%)

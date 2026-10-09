@@ -159,8 +159,8 @@ python3 horizon.py examples/c4-log.jsonl --as-of 2026-10-09
 
 ## Scoring the predictions
 
-**The prediction table is a DRAFT, not yet registered; it is frozen at OSF registration.** Its probabilities are
-draft probabilities, fixed on the registration date; until then they and the wording may still change, and the history of every change stays in git. After registration the
+**The prediction table is a DRAFT, not yet registered; it is frozen at OSF registration.** Its probabilities were
+fixed on 9 October 2026 as the median of three blind model forecasts, adopted by the author (predictions/changelog-v1-v2.md); the history of every change stays in git. After registration the
 table is never edited: a new prediction is registered separately and carries its own date.
 
 Copy `predictions/outcomes-template.csv` to `outcomes-2027.csv`, set each status to `came_true`, `did_not`,

@@ -6,7 +6,7 @@
 baseline, the check and final dates, the probability, the rules for came true, did not and unresolved, the fallback
 source, the nearest prior forecast, and who resolves it (a public source or a separately preregistered study).
 
-The probabilities are draft probabilities, fixed on the registration date; until registration they and the wording may still change; every change is kept in the git history. On the
+The probabilities were fixed on 9 October 2026 as the median of three blind model forecasts, adopted by the author (changelog-v1-v2.md); every change is kept in the git history. On the
 day of registration the table is frozen, the OSF DOI is added here and in the main README, and `TABLE_STATUS` in
 `score.py` changes from DRAFT to the registration record. After that the table is never edited: a new prediction is
 registered separately and carries its own date.

@@ -35,10 +35,44 @@ Considered and not added: F3p, a point-estimate twin of F3, dropped after the bl
 
 ## Author against pooled models: differences above 0.15
 
-The recommended probability is the midpoint in log odds of the two; the owner fixes the final number at registration.
+The recommended probability was the midpoint in log odds of the two. The final numbers were fixed on 9 October 2026 (next section).
 
 - F6: author 0.60, pooled models 0.37; the domain argument of Section 6.3.
 - F14: author 0.65, pooled models 0.49; the axes are distinct by construction; the R squared threshold is the main risk.
 - F28b: author 0.40, pooled models 0.20; a doubling time of 4 to 7 months.
 - F32: author 0.15, pooled models 0.31; large-vendor coding agents are still used mainly by developers.
 - F34: author 0.45, pooled models 0.65; reference hours are judgements and the rule uses the lower bound.
+
+## Registered probabilities (9 October 2026)
+
+On 9 October 2026 every probability was fixed as the median of three blind model forecasts (Claude Opus, an OpenAI model and Gemini), each given the same table without the author's numbers. The author adopted the medians as the registered probabilities; they are registered on OSF. Changes from the draft values (22 of 41; the other 19 are unchanged):
+
+| id | draft | registered | models_median (earlier round of 4) |
+|---|---|---|---|
+| F2 | 0.60 | 0.70 | 0.68 |
+| F4a | 0.40 | 0.45 | 0.47 |
+| F6 | 0.50 | 0.38 | 0.35 |
+| F7 | 0.45 | 0.42 | 0.43 |
+| F8 | 0.75 | 0.80 | 0.77 |
+| F11 | 0.40 | 0.50 | 0.45 |
+| F12 | 0.45 | 0.42 | 0.42 |
+| F13 | 0.60 | 0.65 | 0.69 |
+| F14 | 0.55 | 0.52 | 0.50 |
+| F18 | 0.50 | 0.48 | 0.54 |
+| F21 | 0.65 | 0.67 | 0.67 |
+| F22 | 0.30 | 0.28 | 0.30 |
+| F23 | 0.90 | 0.92 | 0.92 |
+| F24 | 0.25 | 0.23 | 0.35 |
+| F27 | 0.30 | 0.32 | 0.34 |
+| F28 | 0.75 | 0.80 | 0.62 |
+| F29 | 0.70 | 0.69 | 0.71 |
+| F31 | 0.55 | 0.60 | 0.62 |
+| F32 | 0.20 | 0.40 | 0.25 |
+| F34 | 0.55 | 0.65 | 0.71 |
+| F35 | 0.55 | 0.60 | 0.57 |
+| F36 | 0.25 | 0.23 | 0.21 |
+
+Registered probability differs from models_median by more than 0.15:
+
+- F28: 0.80 against 0.62. METR's 80% horizon grew about sevenfold, from about 25 minutes in August 2025 to 3.1 hours in March 2026; reaching 8 hours needs about 1.4 more doublings in 21 months (Claude Opus).
+- F32: 0.40 against 0.25. OpenAI reported in June 2026 that knowledge workers were about 20% of the 5 million weekly Codex users and were growing more than three times faster than developers (Claude Opus).

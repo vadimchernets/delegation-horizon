@@ -6,6 +6,8 @@
   quote, archived copy, period, population, measure, who checked); README merged.
 - Cross-references aligned with the paper: predictions F27 and F31 (old ids N1, N7), pilot status in Appendix E;
   prediction probabilities marked as draft probabilities, fixed on the registration date.
+- Registered probabilities: each prediction's probability fixed on 9 October 2026 as the median of three blind
+  model forecasts, adopted by the author (22 of 41 changed; `predictions/changelog-v1-v2.md`).
 - `horizon.py` and `brier.py`: the listings of Appendix C2 and C3, byte for byte (a test checks SHA-256).
 - Rules v1.1, from a desk pre-pilot of the thresholds (simulated logs and exact binomial rates; `pilot/`):
   - Month needs six pieces in 365 days, at least five verified (was four of four, which made Month harder to

@@ -203,7 +203,7 @@ class LogPiece(unittest.TestCase):
             self.assertEqual([s["session"] for s in stubs], ["s1", "s2"])
             log = Path(d) / "log.jsonl"
             # first session: nothing handed over; second: one failed piece (failures are logged too)
-            answers = ["no", "yes", "P07", "accounts", "2026-10-09", "4", "", "50", "one_piece", "expert",
+            answers = ["no", "yes", "P07", "accounts", dt.date.today().isoformat(), "4", "", "50", "one_piece", "expert",
                        "no", "no", "no", "0", "0", "no"]
             r = run([PY, str(TOOLS / "log_piece.py"), str(log), "--pending", str(pending)],
                     stdin="\n".join(answers) + "\n")

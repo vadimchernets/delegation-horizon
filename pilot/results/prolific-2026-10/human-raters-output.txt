@@ -1,0 +1,34 @@
+
+== bookkeeping: 49 raters kept, 11 excluded, 11760 rater pairs over 10 tasks
+pairs within x1.5: 0.283  (registered threshold 0.70: not met)
+pairs within x1.5 after removing each rater's level: 0.335
+ICC(2,1) on log hours, 49 complete raters: 0.335
+test-retest within x1.5: 0.531 (n=49)
+task  median_h  rung  intended
+BK01       2.0  Hour        Hour
+BK02       2.0  Hour        Hour
+BK03       1.5  Hour        Hour
+BK04       3.0  Hour        Day
+BK05       2.0  Hour        Day
+BK06       3.0  Hour        Day
+BK07       4.0  Hour        Day
+BK08       8.0  Day         Week
+BK09       8.0  Day         Week
+BK10      12.0  Day         Week
+
+== webtools: 50 raters kept, 8 excluded, 11809 rater pairs over 10 tasks
+pairs within x1.5: 0.247  (registered threshold 0.70: not met)
+pairs within x1.5 after removing each rater's level: 0.349
+ICC(2,1) on log hours, 49 complete raters: 0.461
+test-retest within x1.5: 0.735 (n=49)
+task  median_h  rung  intended
+WT01       1.0  Hour        Hour
+WT02       1.0  Hour        Hour
+WT03       2.0  Hour        Hour
+WT04       7.0  Hour        Day
+WT05       6.0  Hour        Day
+WT06       4.0  Hour        Day
+WT07       4.0  Hour        Day
+WT08      20.0  Day         Week
+WT09      16.0  Day         Week
+WT10      20.0  Day         Week

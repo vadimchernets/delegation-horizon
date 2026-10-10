@@ -1,6 +1,6 @@
 # Protocol: feasibility pilot of the verified delegation horizon
 
-Version 0.1, 9 October 2026. Ready for registration; not yet registered. The desk pre-pilot
+Version 0.1, 9 October 2026. The full live pilot is not yet registered; its first step, a Prolific pre-pilot of rater agreement on reference hours, was registered on 9 October 2026 (OSF, DOI 10.17605/OSF.IO/V92R8). The desk pre-pilot
 (`README.md`, Appendix E of the paper) fixed the questions this pilot must answer and the rule changes
 of v1.1 that it tests.
 

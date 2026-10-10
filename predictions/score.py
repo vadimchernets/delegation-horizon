@@ -23,7 +23,7 @@ sys.path.insert(0, os.path.dirname(HERE))
 import brier  # noqa: E402  (Appendix C3, byte for byte)
 
 # Flipped to "frozen on OSF, doi:..." on the day the table is registered; until then it is a draft.
-TABLE_STATUS = "DRAFT, not yet registered; frozen at OSF registration"
+TABLE_STATUS = "registered on OSF on 9 October 2026, DOI 10.17605/OSF.IO/VW6P9 (https://osf.io/vw6p9); the table is frozen"
 STATUS = {"came_true": "1", "1": "1", "did_not": "0", "0": "0",
           "not_yet_due": "not_yet_due", "unresolved": "unresolved", "": "not_yet_due"}
 

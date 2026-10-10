@@ -151,7 +151,7 @@ spreadsheet log.
 | 5.1, 7.2 | `templates/` | Spreadsheet log, task card for a task bank, guarantor record |
 | 3, 4, 6 to 13 | `kits/`, `tools/` | One kit or tool per section: names, tokens in reviews, matched-task study, degree share of postings, guarantor sign-off and product liveness, release checklist by risk, codebook and kappa, a one-day hiring test, pre-release security scan, scope statement. The map is `kits/README.md` |
 | 1, 2, 13 | `sources/` | Register of claims with archived copies, refreshed monthly by a workflow |
-| 11, Table A6 | `predictions/` | The dated predictions (DRAFT), resolution rules, files for resolving specific predictions, and the scorecard tools |
+| 11, Table A6 | `predictions/` | The dated predictions (registered on OSF, DOI 10.17605/OSF.IO/VW6P9), resolution rules, files for resolving specific predictions, and the scorecard tools |
 | C3 | `brier.py` | Brier score over dated predictions. Byte for byte as printed in the paper |
 | | `tests/` | `python3 -m unittest discover -v` |
 
@@ -163,7 +163,7 @@ python3 horizon.py examples/c4-log.jsonl --as-of 2026-10-09
 
 ## Scoring the predictions
 
-**The prediction table is a DRAFT, not yet registered; it is frozen at OSF registration.** Its probabilities were
+**The prediction table is registered on OSF on 9 October 2026, DOI 10.17605/OSF.IO/VW6P9 (https://osf.io/vw6p9), and frozen.** Its probabilities were
 fixed on 9 October 2026 as the median of three blind model forecasts, adopted by the author (predictions/changelog-v1-v2.md); the history of every change stays in git. After registration the
 table is never edited: a new prediction is registered separately and carries its own date.
 

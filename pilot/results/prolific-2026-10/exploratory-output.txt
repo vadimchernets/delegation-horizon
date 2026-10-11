@@ -1,0 +1,127 @@
+EXPLORATORY, NOT REGISTERED. The registered result is human-raters-output.txt.
+control: kept estimates identical to the registered loader: yes (1079 estimates)
+
+== 0. Accounting
+paid: 119 (60 bookkeeping, 59 web tools); one web developer's answers were not saved by the survey tool, so 118 participants have answers
+bookkeeping: 60 with answers, 49 kept, 11 excluded, 49 kept and complete; pairs within 1.5 0.283 (95% interval over raters 0.242 to 0.333)
+   kept raters with a numeric estimate on fewer than all ten tasks: 0
+webtools: 58 with answers, 50 kept, 8 excluded, 49 kept and complete; pairs within 1.5 0.247 (95% interval over raters 0.213 to 0.285)
+   kept raters with a numeric estimate on fewer than all ten tasks: 1
+
+== 1. Panel size: two disjoint panels per task, 2000 draws per task, kept complete raters
+   columns: panel size; two panels' medians within 1.5; on the same rung; one panel's median within 1.5 of the whole sample's median
+bookkeeping (raw estimates):
+   k=1: 0.284  0.506  0.433
+   k=2: 0.307  0.577  0.446
+   k=3: 0.430  0.683  0.599
+   k=5: 0.514  0.768  0.690
+   k=7: 0.579  0.818  0.760
+   k=9: 0.624  0.849  0.803
+   k=11: 0.655  0.864  0.835
+   k=15: 0.705  0.880  0.884
+   k=21: 0.757  0.887  0.932
+   smallest panel tried with two panels within 1.5 in at least 70% of draws: 15
+bookkeeping (each rater's level removed, in sample, as in the registered secondary outcome):
+   k=1: 0.335  0.621  0.507
+   k=2: 0.420  0.720  0.603
+   k=3: 0.511  0.762  0.697
+   k=5: 0.627  0.813  0.802
+   k=7: 0.710  0.842  0.870
+   k=9: 0.767  0.866  0.909
+   k=11: 0.811  0.887  0.943
+   k=15: 0.879  0.914  0.974
+   k=21: 0.937  0.946  0.993
+   rule of Section 5.2: a third rater is called on 0.718 of pieces
+webtools (raw estimates):
+   k=1: 0.244  0.461  0.355
+   k=2: 0.327  0.563  0.448
+   k=3: 0.365  0.604  0.500
+   k=5: 0.432  0.681  0.599
+   k=7: 0.493  0.738  0.668
+   k=9: 0.542  0.781  0.723
+   k=11: 0.567  0.800  0.758
+   k=15: 0.643  0.838  0.831
+   k=21: 0.724  0.844  0.895
+   smallest panel tried with two panels within 1.5 in at least 70% of draws: 21
+webtools (each rater's level removed, in sample, as in the registered secondary outcome):
+   k=1: 0.344  0.602  0.506
+   k=2: 0.452  0.736  0.612
+   k=3: 0.522  0.775  0.699
+   k=5: 0.622  0.835  0.805
+   k=7: 0.692  0.867  0.869
+   k=9: 0.756  0.894  0.912
+   k=11: 0.802  0.918  0.943
+   k=15: 0.864  0.943  0.975
+   k=21: 0.920  0.976  0.993
+   rule of Section 5.2: a third rater is called on 0.752 of pieces
+
+== 2. Years in the field (kept complete raters)
+bookkeeping:
+    Less than 1: n  2; level x0.93; within 1.5 of the others' median 0.65; pairs within 1.5 inside the group 0.500
+            1-2: n  5; level x0.88; within 1.5 of the others' median 0.46; pairs within 1.5 inside the group 0.330
+            3-5: n 12; level x1.45; within 1.5 of the others' median 0.36; pairs within 1.5 inside the group 0.242
+           6-10: n  7; level x0.76; within 1.5 of the others' median 0.43; pairs within 1.5 inside the group 0.295
+   More than 10: n 23; level x1.04; within 1.5 of the others' median 0.34; pairs within 1.5 inside the group 0.268
+   rank correlation of years with level -0.04 (permutation p 0.80); with distance from the others +0.18 (p 0.21)
+   more than 10 years (23) against the rest (26): pairs within 1.5 0.268 vs 0.299; level x1.04 vs x1.07 (p 0.88)
+webtools:
+    Less than 1: n  2; level x1.24; within 1.5 of the others' median 0.40; pairs within 1.5 inside the group 0.100
+            1-2: n  8; level x0.80; within 1.5 of the others' median 0.40; pairs within 1.5 inside the group 0.236
+            3-5: n 11; level x0.61; within 1.5 of the others' median 0.25; pairs within 1.5 inside the group 0.256
+           6-10: n  8; level x0.88; within 1.5 of the others' median 0.39; pairs within 1.5 inside the group 0.254
+   More than 10: n 20; level x1.32; within 1.5 of the others' median 0.36; pairs within 1.5 inside the group 0.297
+   rank correlation of years with level +0.25 (permutation p 0.09); with distance from the others -0.10 (p 0.47)
+   more than 10 years (20) against the rest (29): pairs within 1.5 0.297 vs 0.242; level x1.32 vs x0.76 (p 0.02)
+both domains: 43 of 98 kept complete raters report more than 10 years
+
+== 3. Per-task spread (kept raters), most disputed first
+   WT10 (Week): pairs within 1.5 0.195; median 20 h; quartiles 7 to 38 (ratio 5.4); range 0.583333 to 400
+   WT08 (Week): pairs within 1.5 0.198; median 20 h; quartiles 5 to 40 (ratio 8.0); range 0.433333 to 120
+   WT09 (Week): pairs within 1.5 0.207; median 16 h; quartiles 7 to 32 (ratio 4.6); range 0.5 to 200
+   BK10 (Week): pairs within 1.5 0.219; median 12 h; quartiles 5.5 to 37.5 (ratio 6.8); range 0.0166667 to 1000
+   BK09 (Week): pairs within 1.5 0.230; median 8 h; quartiles 5 to 20 (ratio 4.0); range 1 to 300
+   WT04 (Day): pairs within 1.5 0.244; median 7 h; quartiles 3 to 12.5 (ratio 4.2); range 0.416667 to 40
+   WT05 (Day): pairs within 1.5 0.247; median 6 h; quartiles 2.5 to 12 (ratio 4.8); range 0.5 to 40
+   BK08 (Week): pairs within 1.5 0.261; median 8 h; quartiles 4 to 20 (ratio 5.0); range 2 to 80
+   WT03 (Hour): pairs within 1.5 0.264; median 2 h; quartiles 1 to 3 (ratio 3.0); range 0.0166667 to 10
+   WT01 (Hour): pairs within 1.5 0.275; median 1 h; quartiles 1 to 3 (ratio 3.0); range 0.0833333 to 20
+   WT07 (Day): pairs within 1.5 0.276; median 4 h; quartiles 2 to 8 (ratio 4.0); range 0.333333 to 24
+   WT02 (Hour): pairs within 1.5 0.279; median 1 h; quartiles 0.5 to 2.5 (ratio 5.0); range 0.25 to 8
+   BK03 (Hour): pairs within 1.5 0.281; median 1.5 h; quartiles 1 to 2 (ratio 2.0); range 0.183333 to 55
+   BK06 (Day): pairs within 1.5 0.284; median 3 h; quartiles 2 to 6.5 (ratio 3.2); range 0.25 to 48
+   BK05 (Day): pairs within 1.5 0.287; median 2 h; quartiles 1 to 3 (ratio 3.0); range 0.166667 to 24
+   WT06 (Day): pairs within 1.5 0.288; median 4 h; quartiles 2 to 7.5 (ratio 3.8); range 0.25 to 18
+   BK07 (Day): pairs within 1.5 0.309; median 4 h; quartiles 2.5 to 8 (ratio 3.2); range 0.75 to 24
+   BK02 (Hour): pairs within 1.5 0.316; median 2 h; quartiles 1 to 3 (ratio 3.0); range 0.05 to 78
+   BK01 (Hour): pairs within 1.5 0.322; median 2 h; quartiles 0.875 to 2 (ratio 2.3); range 0.25 to 45
+   BK04 (Day): pairs within 1.5 0.324; median 3 h; quartiles 2 to 5 (ratio 2.5); range 0.75 to 80
+   bookkeeping, tasks meant for Hour: mean pairs within 1.5 0.307
+   bookkeeping, tasks meant for Day: mean pairs within 1.5 0.301
+   bookkeeping, tasks meant for Week: mean pairs within 1.5 0.237
+   webtools, tasks meant for Hour: mean pairs within 1.5 0.273
+   webtools, tasks meant for Day: mean pairs within 1.5 0.264
+   webtools, tasks meant for Week: mean pairs within 1.5 0.200
+
+== 4. Completion time and unit chosen (kept complete raters)
+bookkeeping: completion time median 4.5 min, fastest quarter at or under 3.6 min (12 raters)
+   fastest quarter vs the rest: pairs within 1.5 0.365 vs 0.264; distance from the others x1.83 vs x2.41 (p 0.04); rank correlation of time with distance +0.13
+   used minutes for at least one answer: 24; hours only: 25; pairs within 1.5 0.313 vs 0.309; distance x2.28 vs x2.23 (p 0.85)
+   raters with an estimate of 40 h or more on a task meant for Hour (possible minutes typed as hours): 2; pairs within 1.5 without them 0.284
+webtools: completion time median 5.0 min, fastest quarter at or under 3.7 min (12 raters)
+   fastest quarter vs the rest: pairs within 1.5 0.244 vs 0.241; distance from the others x2.05 vs x2.31 (p 0.39); rank correlation of time with distance +0.06
+   used minutes for at least one answer: 18; hours only: 31; pairs within 1.5 0.279 vs 0.305; distance x2.58 vs x2.07 (p 0.07)
+   raters with an estimate of 40 h or more on a task meant for Hour (possible minutes typed as hours): 0; pairs within 1.5 without them 0.248
+
+== 5. Excluded (failed the competency question) against kept raters
+bookkeeping: 11 excluded with all ten estimates; medians of tasks meant for Week, excluded 6, 6, 8; kept 8, 8, 12
+   medians of tasks meant for Hour, excluded 1, 2, 2; kept 2, 2, 1.5
+   own Week tasks over own Hour tasks (a rater's level cancels): geometric mean, excluded x3.2, kept x6.2; permutation p 0.10
+   overall level, excluded/kept x0.67 (p 0.12); pairs within 1.5 among the excluded 0.284
+webtools: 8 excluded with all ten estimates; medians of tasks meant for Week, excluded 24.5, 27.5, 19; kept 20, 16, 20
+   medians of tasks meant for Hour, excluded 2, 1.75, 1.375; kept 1, 1, 2
+   own Week tasks over own Hour tasks (a rater's level cancels): geometric mean, excluded x15.8, kept x10.6; permutation p 0.37
+   overall level, excluded/kept x1.24 (p 0.48); pairs within 1.5 among the excluded 0.221
+
+== 6. Retest: the repeated task asked again after all ten (kept raters)
+bookkeeping: n 49; second answer higher 25, lower 4, equal 20; exact sign test p 0.0001; geometric mean second/first 1.32
+webtools: n 49; second answer higher 17, lower 2, equal 30; exact sign test p 0.0007; geometric mean second/first 1.27

@@ -1,0 +1,119 @@
+domain,rater,years_in_field,time_taken_s,n_minutes_answers,n_hours_answers
+bookkeeping,a6e7e30a69,6-10,295,5,6
+bookkeeping,bad45a922b,More than 10,647,0,11
+bookkeeping,ad717f642d,More than 10,249,0,11
+bookkeeping,2dbd1727d7,More than 10,186,1,10
+bookkeeping,7f277095d7,More than 10,248,0,0
+bookkeeping,15816eef52,3-5,366,0,11
+bookkeeping,a2e439b79f,More than 10,352,5,6
+bookkeeping,5595e2a4ba,More than 10,265,0,11
+bookkeeping,9a3c48f490,3-5,144,0,11
+bookkeeping,9665a69a6a,3-5,244,0,10
+bookkeeping,e827cd5892,6-10,246,2,9
+bookkeeping,9418156ab5,More than 10,168,0,11
+bookkeeping,ed463392fe,3-5,500,0,10
+bookkeeping,727204eea3,6-10,1092,0,11
+bookkeeping,d34d663e03,6-10,281,3,8
+bookkeeping,e3d22da69b,3-5,193,0,11
+bookkeeping,a636f2e914,3-5,275,2,9
+bookkeeping,99d6dc48fd,6-10,328,1,0
+bookkeeping,2966dce02d,6-10,369,0,11
+bookkeeping,dc6ec23880,More than 10,773,6,5
+bookkeeping,e6179b3590,Less than 1,234,1,10
+bookkeeping,ee729ed2c1,3-5,211,3,8
+bookkeeping,b868b41cde,More than 10,370,2,9
+bookkeeping,f14b5e1773,1-2,125,0,11
+bookkeeping,12b570864b,More than 10,202,0,11
+bookkeeping,6c3eedd86c,6-10,177,0,11
+bookkeeping,1ed6f0bf14,1-2,322,4,7
+bookkeeping,7edcf02f72,3-5,315,7,4
+bookkeeping,d0f7f4a0f5,More than 10,223,2,9
+bookkeeping,e8ae223bc4,More than 10,414,1,10
+bookkeeping,87c2d64fa3,More than 10,268,1,10
+bookkeeping,bf42f3bb05,More than 10,306,1,10
+bookkeeping,01ec2202e9,More than 10,201,0,11
+bookkeeping,7afd9dc057,3-5,178,0,11
+bookkeeping,04c0b1d0a8,Less than 1,632,0,10
+bookkeeping,53f84fe3c5,3-5,249,1,9
+bookkeeping,f8a70d2d74,3-5,332,0,11
+bookkeeping,d639cbcd30,More than 10,305,3,8
+bookkeeping,adff16b67b,1-2,255,0,11
+bookkeeping,e19a1e7fcd,3-5,252,1,10
+bookkeeping,dfb79f1592,6-10,327,0,10
+bookkeeping,687085707d,6-10,471,1,10
+bookkeeping,95ca3facc2,More than 10,220,3,8
+bookkeeping,a8e5625f91,More than 10,358,3,8
+bookkeeping,8ffe843d87,More than 10,254,4,7
+bookkeeping,345826999b,3-5,173,0,11
+bookkeeping,ceb7a3960a,More than 10,909,0,11
+bookkeeping,5751bfc1a4,1-2,264,0,11
+bookkeeping,afe5d8d5ac,1-2,312,0,11
+bookkeeping,0b234a0520,3-5,175,0,11
+bookkeeping,dde91c9a45,More than 10,261,0,11
+bookkeeping,21061cda08,More than 10,450,0,11
+bookkeeping,509f4ef67c,More than 10,282,0,10
+bookkeeping,16da4f6ecf,More than 10,190,2,9
+bookkeeping,c2cd8fa37a,1-2,211,1,10
+bookkeeping,907bda9d9f,More than 10,294,3,8
+bookkeeping,2adb3f44f7,3-5,184,0,11
+bookkeeping,1ce54d052f,1-2,202,1,10
+bookkeeping,9b2ac16100,Less than 1,109,0,11
+bookkeeping,f42d537304,1-2,622,1,10
+webtools,e29791c6f1,1-2,237,0,11
+webtools,5f2305e867,More than 10,200,1,10
+webtools,646df23ae7,6-10,454,0,11
+webtools,59899aea79,3-5,2373,10,0
+webtools,77b1c5495a,3-5,363,4,7
+webtools,7a0d44d19f,6-10,136,1,10
+webtools,391f0fff1d,1-2,509,0,10
+webtools,4ed0fbaae6,More than 10,259,0,11
+webtools,8c954397ea,More than 10,451,0,11
+webtools,d7b105bdff,3-5,257,0,11
+webtools,c212f58ca5,6-10,361,1,10
+webtools,31c56f262a,More than 10,208,5,6
+webtools,9cfb1bccbe,More than 10,390,1,10
+webtools,c9a2f66445,More than 10,221,3,8
+webtools,3909b98af1,6-10,143,0,0
+webtools,506568f2fb,1-2,338,0,10
+webtools,29029d0a64,3-5,315,0,11
+webtools,37c3b50331,3-5,266,6,5
+webtools,bd7c81dddb,More than 10,251,0,11
+webtools,4ec6111385,1-2,358,0,11
+webtools,a9e35fe55a,More than 10,336,0,10
+webtools,1e8dd7bf0a,3-5,306,0,11
+webtools,cf3597dcbd,3-5,655,0,11
+webtools,fdd7cdc016,6-10,670,0,11
+webtools,b4d610c7d9,More than 10,161,1,10
+webtools,8b945efd5a,More than 10,228,1,9
+webtools,1efee4f653,1-2,817,3,8
+webtools,019d389586,More than 10,196,0,11
+webtools,81f2a248d4,3-5,193,0,10
+webtools,e56abe1b33,Less than 1,306,0,0
+webtools,049e7b0ffc,More than 10,351,0,11
+webtools,8d8b9c693c,Less than 1,234,0,11
+webtools,c9e18559f3,More than 10,390,2,8
+webtools,b019d72457,6-10,228,2,9
+webtools,8faac566f4,More than 10,413,0,11
+webtools,fb1d57b180,More than 10,322,0,11
+webtools,546faaeb5d,More than 10,485,0,11
+webtools,0fab4f7433,More than 10,611,0,11
+webtools,ccafcf3cf5,More than 10,178,0,11
+webtools,8a31740993,3-5,175,0,1
+webtools,c187cfa96e,3-5,234,3,8
+webtools,723d9925a7,6-10,189,1,10
+webtools,10fe11524b,More than 10,297,0,11
+webtools,d577fe8452,More than 10,224,2,9
+webtools,c75c667b6b,1-2,627,9,2
+webtools,b8ce665713,Less than 1,276,1,10
+webtools,e2e0b163a8,1-2,245,2,9
+webtools,8e652ab9c2,3-5,178,0,11
+webtools,1c8fd6ee76,6-10,261,4,7
+webtools,5398f12b39,More than 10,190,0,10
+webtools,fbf706f1a4,3-5,246,5,6
+webtools,f7fbede4bd,6-10,270,2,9
+webtools,2c37f2c517,1-2,216,0,11
+webtools,3fe40ddb34,3-5,350,0,11
+webtools,d7ec6638c2,More than 10,256,0,11
+webtools,bf1d13326c,More than 10,297,3,8
+webtools,5ac8dbbb1d,1-2,410,0,11
+webtools,50c65624ea,3-5,217,0,11

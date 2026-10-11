@@ -1,6 +1,6 @@
 # Changelog
 
-## 1.1.0 (2026-10-11, not yet released)
+## 1.1.0 (2026-10-11)
 
 The rules v1.1 are unchanged. `horizon.py` changes in two places, and Appendix C2 of the paper prints the new listing
 (`tools/paper_sync.py` and `tests/test_instrument.py` check it byte for byte): the gain adds hours and minutes with

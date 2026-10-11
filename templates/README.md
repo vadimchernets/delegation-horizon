@@ -26,10 +26,19 @@ the score, and a log without them can lose a rung (the worked example in the pap
 | check | `hidden_tests`, `expert`, `real_use`, `other_family_with_sources`, `same_family`, `self_review` or `none` | expert |
 | agent_saw_check | yes or no: could the agents see the check? | no |
 | passed | yes or no (no for failed or abandoned pieces) | yes |
-| irreversible | yes or no: can a mistake here be undone? (money moved, a filing that cannot be withdrawn) | no |
+| irreversible | yes or no: would a mistake here be impossible to undo? (money moved, a filing that cannot be withdrawn) | no |
 | planted_errors | How many errors were planted in the task before hand-over | 0 |
 | planted_missed | How many of them you did not catch | 0 |
 | outside_help | yes or no: did a colleague or contractor fix it off the log? | no |
+| task_id | Optional: the task's identifier in a bank | BK04 |
+| model | Optional: the agents and models used | the agent and model you ran |
+| tools | Optional: their tools, or the steps of your checking process (`kits/checking-process.md`) | list before, fresh review |
+| checker | Optional: who or what ran the check, as a role, never a real name | senior bookkeeper |
+| rater_hours | Optional: the raters' estimates behind reference_hours, separated by ';' (`tools/reference_hours.py` combines them) | 6;10 |
+| audit | Optional: none, passed or failed, the result of a second independent check | passed |
+| revoked | Optional: yes if a delayed outcome later revoked the piece | no |
+
+Leave an optional cell empty when it does not apply; an empty cell is read as no field.
 
 Only four kinds of check can verify a piece: hidden tests, a qualified expert, real use by the intended users, and a
 model of another family that checked against sources you opened. Self-review and agreement among models of one

@@ -20,7 +20,7 @@ AS_OF = dt.date(2026, 10, 9)
 # SHA-256 of the listings as printed in Appendix C2 (rules v1.1) and C3. If a test below fails, the code here no
 # longer matches the paper: correct the paper first, then the code, then these two lines.
 PAPER_SHA = {
-    "horizon.py": "94cd244ed7e36392440173cc12b128c178c55be215bbb9654924df59026aab9c",
+    "horizon.py": "094777bbba0336d45aa5ac9b6bedfc038be39db87facac3079d09554a7554e82",
     "brier.py": "c7d4a4faa2582a3ad12ad35fe95861999cad13c3990d9fc297d19e4a2588860d",
 }
 
@@ -173,6 +173,14 @@ class CardTest(unittest.TestCase):
         self.assertIn("### small-business bookkeeping · Day · ×2 · 2026-Q4", r.stdout)
         self.assertIn("8 verified, 2 not verified", r.stdout)
 
+    def test_card_prints_the_count_behind_the_rung(self):
+        # the count horizon.py prints beside the rung, "Day (8/10)", travels with the card (Section 5.8)
+        r = run("record_card.py", "examples/c4-log.jsonl", "--as-of", "2026-10-09")
+        self.assertIn("Count behind the rung: 8 of 10 pieces of Day size verified in its 91-day window "
+                      "(8 needed)", r.stdout)
+        r = run("record_card.py", "examples/team-log.jsonl", "--as-of", "2026-10-09", "--person", "P01")
+        self.assertIn("6 of 7 pieces of Week size verified in its 182-day window (6 needed)", r.stdout)
+
     def test_csv_with_bad_yes_no_is_refused(self):
         src = (ROOT / "examples" / "c4-log.csv").read_text(encoding="utf-8").replace(",no,yes,", ",maybe,yes,", 1)
         f = tempfile.NamedTemporaryFile("w", suffix=".csv", delete=False, encoding="utf-8")
@@ -259,6 +267,13 @@ class RulesV11Test(unittest.TestCase):
         self.assertIn("needs third rater", r.stdout)
         log[0]["rater_hours"] = [7, 9]
         self.assertNotIn("needs third rater", run("horizon.py", self.write(log), "--as-of", AS_OF).stdout)
+        log[0]["rater_hours"] = [6, 10, 7]                 # the third rater was asked: the median decided
+        self.assertNotIn("needs third rater", run("horizon.py", self.write(log), "--as-of", AS_OF).stdout)
+
+    def test_gain_adds_the_same_way_on_every_python(self):
+        import horizon
+        log = [dict(piece(d), reference_hours=0.1, attention_minutes=3) for d in range(1, 11)]
+        self.assertEqual(horizon.gain(log), 2.0)
 
     def test_output_shows_count_checks_and_median(self):
         r = run("horizon.py", "examples/c4-log.jsonl", "--as-of", AS_OF)
@@ -321,6 +336,17 @@ class AuditSampleTest(unittest.TestCase):
     def test_default_seed_is_the_date(self):
         _, seed = self.mod.draw(self.records, AS_OF)
         self.assertEqual(seed, 20261009)
+
+    def test_cli_seed_comes_from_the_closed_log_and_the_salt(self):
+        data = (ROOT / "examples/team-log.csv").read_bytes()
+        s1, sha = self.mod.derived_seed(data, AS_OF, "")
+        s2, _ = self.mod.derived_seed(data, AS_OF, "checker word")
+        s3, _ = self.mod.derived_seed(data + b"\n", AS_OF, "")
+        self.assertEqual(len({s1, s2, s3}), 3)
+        r = run("audit_sample.py", "examples/team-log.csv", "--as-of", AS_OF, "--salt", "checker word")
+        self.assertEqual(r.returncode, 0, r.stderr)
+        self.assertIn(f"seed {s2},", r.stdout)
+        self.assertIn(f"log sha256 {sha}", r.stdout)
 
     def test_every_group_is_audited_and_only_accepted_pieces(self):
         sample, _ = self.mod.draw(self.records, AS_OF, 0.05)

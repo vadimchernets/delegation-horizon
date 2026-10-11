@@ -5,18 +5,25 @@ Teaches: the audit defence of Table 3. A record is only as good as its checks, a
 to keep checks independent is to re-check a random share of accepted pieces with a second checker who
 does not know which pieces were drawn in advance. The draw is reproducible: the same log, seed and
 date always give the same pieces, so anyone can confirm that the sample was not hand-picked.
+Nobody can steer it: a seed known while the log is written (such as the date) would let the person
+logging compute which lines get drawn and arrange the log around them. So the default seed is taken
+from the SHA-256 of the closed log file, the date and a salt the second checker chooses after
+receiving the log (commit, then reveal): the log is fixed before the salt exists, and the salt is
+chosen without seeing the draw. The log's SHA-256 and the seed are printed with the sample.
 Every person and domain with an accepted piece gets at least one piece checked, and every accepted
 irreversible piece can be forced into the sample with --all-irreversible.
 Limits: it draws the sample and nothing else. It does not run the second check, and a share that is
 too small will miss rare problems; 10 percent with a minimum of one per person and domain is a start.
 Usage:
-  python3 audit_sample.py team-log.csv --as-of 2026-10-09 --seed 20261009
+  python3 audit_sample.py team-log.csv --as-of 2026-10-09 --salt <word the second checker picks>
+  python3 audit_sample.py team-log.csv --as-of 2026-10-09 --seed 20261009   # replay a printed seed
   python3 audit_sample.py team-log.jsonl --share 0.2 --format csv --out audit.csv
 Licence: MIT
 """
 import argparse
 import csv
 import datetime as dt
+import hashlib
 import math
 import os
 import random
@@ -34,6 +41,13 @@ FIELDS = ["line", "person", "domain", "date", "reference_hours", "check", "irrev
 def accepted(r):
     """A piece the person signed off as passed; only these can be audited."""
     return r["passed"] is True
+
+
+def derived_seed(log_bytes, as_of, salt=""):
+    """The seed nobody can know while the log is written: SHA-256 of the closed log, the date and the salt."""
+    log_sha = hashlib.sha256(log_bytes).hexdigest()
+    mixed = hashlib.sha256(f"{log_sha}:{as_of.isoformat()}:{salt}".encode("utf-8")).hexdigest()
+    return int(mixed[:16], 16), log_sha
 
 
 def draw(records, as_of, share=0.1, seed=None, days=horizon.GAIN_WINDOW, all_irreversible=False):
@@ -72,7 +86,9 @@ def main(argv=None):
     ap.add_argument("log", help="work log: .jsonl (Appendix C1) or .csv (templates/work-log.csv)")
     ap.add_argument("--as-of", default=dt.date.today().isoformat())
     ap.add_argument("--share", type=float, default=0.1, help="share of accepted pieces to re-check (0.1)")
-    ap.add_argument("--seed", type=int, help="random seed; default is the as-of date as YYYYMMDD")
+    ap.add_argument("--seed", type=int, help="replay a printed seed; by default the seed comes from the SHA-256 of the "
+                    "log, the date and --salt")
+    ap.add_argument("--salt", default="", help="a word the second checker picks after receiving the log")
     ap.add_argument("--days", type=int, default=horizon.GAIN_WINDOW, help="window in days (91)")
     ap.add_argument("--all-irreversible", action="store_true", help="always re-check irreversible pieces")
     ap.add_argument("--format", choices=["txt", "csv"], default="txt")
@@ -80,7 +96,10 @@ def main(argv=None):
     args = ap.parse_args(argv)
     as_of = dt.date.fromisoformat(args.as_of)
     records = record_card.load_any(args.log)
-    sample, seed = draw(records, as_of, args.share, args.seed, args.days, args.all_irreversible)
+    with open(args.log, "rb") as fh:
+        derived, log_sha = derived_seed(fh.read(), as_of, args.salt)
+    seed_in = derived if args.seed is None else args.seed
+    sample, seed = draw(records, as_of, args.share, seed_in, args.days, args.all_irreversible)
     fh = open(args.out, "w", newline="", encoding="utf-8") if args.out else sys.stdout
     try:
         if args.format == "csv":
@@ -90,6 +109,8 @@ def main(argv=None):
         else:
             fh.write(f"audit sample as of {as_of}, seed {seed}, share {args.share:g}, window {args.days} days:"
                      f" {len(sample)} pieces\n")
+            fh.write(f"log sha256 {log_sha}" + (f", salt {args.salt!r}" if args.salt else ", no salt") +
+                     ("" if args.seed is None else "; seed given by hand") + "\n")
             for r in rows(sample):
                 fh.write(f"  line {r['line']}: {r['person']} | {r['domain']} | {r['date']} |"
                          f" {r['reference_hours']} h | {r['check']} | {r['reason']}\n")

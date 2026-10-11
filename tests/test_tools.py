@@ -26,6 +26,7 @@ sys.path.insert(0, str(TOOLS))
 import horizon  # noqa: E402
 import archive_urls  # noqa: E402
 import degree_share  # noqa: E402
+import explain  # noqa: E402
 import kappa  # noqa: E402
 import liveness  # noqa: E402
 import log_piece  # noqa: E402
@@ -53,6 +54,33 @@ def piece(**over):
 def write_log(folder, pieces, name="log.jsonl"):
     path = Path(folder) / name
     path.write_text("".join(json.dumps(p) + "\n" for p in pieces), encoding="utf-8")
+    return path
+
+
+def european_csv(source, folder, decimal_comma=False):
+    """The same log as a European spreadsheet saves it: semicolons, day.month.year, optionally 9,0 for 9."""
+    with open(source, newline="", encoding="utf-8") as fh:
+        rows = list(csv.reader(fh))
+    head = rows[0]
+    for row in rows[1:]:
+        for i, name in enumerate(head):
+            if name in ("date", "started") and row[i]:
+                y, m, d = row[i].split("-")
+                row[i] = f"{d}.{m}.{y}"
+            if decimal_comma and name == "reference_hours":
+                row[i] = f"{float(row[i]):.1f}".replace(".", ",")
+    path = Path(folder) / ("eu-" + Path(source).name)
+    with open(path, "w", newline="", encoding="utf-8") as fh:
+        csv.writer(fh, delimiter=";").writerows(rows)
+    return path
+
+
+def us_date_csv(folder):
+    """A spreadsheet that turned 2026-07-20 into 7/20/2026 in the first data row."""
+    lines = (ROOT / "examples" / "c4-log.csv").read_text(encoding="utf-8").splitlines()
+    lines[1] = lines[1].replace("2026-07-20", "7/20/2026")
+    path = Path(folder) / "us-dates.csv"
+    path.write_text("\n".join(lines) + "\n", encoding="utf-8")
     return path
 
 
@@ -150,6 +178,29 @@ class Checker(unittest.TestCase):
             self.assertEqual(self.node_score(log), py)
 
     @unittest.skipUnless(NODE, "node is not installed")
+    def test_reads_a_csv_with_every_column_of_the_template(self):
+        # templates/work-log.csv has 22 columns; a spreadsheet leaves the optional ones empty
+        self.assertEqual((ROOT / "templates" / "work-log.csv").read_text(encoding="utf-8").strip(),
+                         (ROOT / "examples" / "team-log.csv").read_text(encoding="utf-8").splitlines()[0])
+        expected = (ROOT / "examples" / "team-expected.txt").read_text(encoding="utf-8")
+        self.assertEqual(self.node_score(ROOT / "examples" / "team-log.csv"), expected)
+
+    @unittest.skipUnless(NODE, "node is not installed")
+    def test_reads_a_european_spreadsheet_csv(self):
+        expected = (ROOT / "examples" / "team-expected.txt").read_text(encoding="utf-8")
+        with tempfile.TemporaryDirectory() as d:
+            self.assertEqual(self.node_score(european_csv(ROOT / "examples" / "team-log.csv", d)), expected)
+            c4 = european_csv(ROOT / "examples" / "c4-log.csv", d, decimal_comma=True)
+            self.assertEqual(self.node_score(c4), (ROOT / "examples" / "c4-expected.txt").read_text(encoding="utf-8"))
+
+    @unittest.skipUnless(NODE, "node is not installed")
+    def test_an_unreadable_date_is_named(self):
+        with tempfile.TemporaryDirectory() as d:
+            out = self.node_score(us_date_csv(d))
+            self.assertTrue(out.startswith("ERROR row 2:"), out)
+            self.assertIn("YYYY-MM-DD", out)
+
+    @unittest.skipUnless(NODE, "node is not installed")
     def test_rejects_what_horizon_rejects(self):
         bad = piece()
         del bad["outside_help"]
@@ -158,6 +209,196 @@ class Checker(unittest.TestCase):
             self.assertTrue(out.startswith("ERROR line 1: unknown [], missing [\"outside_help\"]"), out)
             out = self.node_score(write_log(d, [piece(planted_errors=1, planted_missed=2)]))
             self.assertIn("planted_missed must lie between 0 and planted_errors", out)
+
+
+class Explain(unittest.TestCase):
+    """explain.py must give reasons for exactly the verdict horizon.py gives."""
+
+    def explain(self, log, *extra):
+        r = run([PY, str(TOOLS / "explain.py"), str(log), "--as-of", "2026-10-09", *extra])
+        self.assertEqual(r.returncode, 0, r.stderr)
+        return r.stdout
+
+    def test_c4_reasons_slack_and_next_rung(self):
+        out = self.explain(C4)
+        self.assertIn("P07: small-business bookkeeping . Day (8/10) . x2 . 2026-Q4", out)
+        self.assertIn("Day holds: 8 of 10 pieces of at least 8 h in the last 91 days verified; 8 needed", out)
+        self.assertIn("from 44% to 97%", out)                       # Section 5.8: 8 of 10, exact 95% interval
+        self.assertIn("no further failed piece of this size", out)
+        self.assertIn("Day holds through 2026-10-18", out)          # the piece closed 2026-07-20 leaves the window
+        self.assertIn("Week needs: 0 pieces of at least 40 h in the last 182 days; 6 needed", out)
+
+    def test_team_blockers_are_named_with_their_dates(self):
+        out = self.explain(ROOT / "examples" / "team-log.jsonl")
+        self.assertIn("irreversible piece closed 2026-08-23 is not verified", out)       # P02, blocks Hour
+        self.assertIn("planted error missed in the piece closed 2026-08-10 blocks Week and above until 2027-02-08",
+                      out)                                                                # P03
+
+    def test_spreadsheet_log_explains_the_same(self):
+        self.assertEqual(self.explain(ROOT / "examples" / "team-log.csv"),
+                         self.explain(ROOT / "examples" / "team-log.jsonl"))
+
+    def test_exact_interval_matches_the_paper(self):
+        import explain
+        low, high = explain.exact_interval(8, 10)
+        self.assertEqual((round(low * 100), round(high * 100)), (44, 97))
+        self.assertEqual(round(explain.one_sided_lower(3, 3) * 100), 37)            # Section 5.8: three of three
+
+    def test_reasons_agree_with_the_scorer_on_random_logs(self):
+        import explain
+        rng = random.Random(7)
+        checks, modes = sorted(horizon.CHECKS), sorted(horizon.MODES)
+        for trial in range(60):
+            pieces = []
+            for _ in range(rng.randint(1, 45)):
+                planted = rng.choice([0, 0, 1, 2])
+                pieces.append(dict(piece(
+                    date=dt.date(2025, 10, 1) + dt.timedelta(days=rng.randint(0, 400)),
+                    reference_hours=rng.choice([1, 2, 8, 9, 40, 45, 160, 500]), mode=rng.choice(modes),
+                    check=rng.choice(checks), passed=rng.random() < 0.85, irreversible=rng.random() < 0.1,
+                    planted_errors=planted, planted_missed=rng.choice([0, 0, 0, planted]),
+                    outside_help=rng.random() < 0.05)))
+            as_of = dt.date(2026, 10, 9)
+            for name, hours, minimum, days in horizon.RUNGS:
+                with self.subTest(trial=trial, rung=name):
+                    self.assertEqual(not explain.unmet(pieces, hours, minimum, as_of, days),
+                                     horizon.rung_holds(pieces, hours, minimum, as_of, days))
+
+
+PLANTED = "error_id,kind,where,what,caught_if\nE1,wrong_entry,invoice 14,dated in the wrong year,flagged or corrected\n" \
+          "E2,wrong_entry,notes,a cited figure the source lacks,flagged\nE3,omission,accruals,the March utility bill is missing,accrual added\n"
+
+
+class Planted(unittest.TestCase):
+    """tools/planted.py: seal before the hand-over, score by kind after it, summarise a study ledger."""
+
+    def files(self, d, outcome="error_id,caught\nE1,yes\nE2,yes\nE3,no\n"):
+        planted, out = Path(d) / "planted.csv", Path(d) / "outcome.csv"
+        planted.write_text(PLANTED, encoding="utf-8")
+        out.write_text(outcome, encoding="utf-8")
+        return planted, out
+
+    def test_seal_then_score_gives_the_log_fields_by_kind(self):
+        with tempfile.TemporaryDirectory() as d:
+            planted, out = self.files(d)
+            seal = run([PY, str(TOOLS / "planted.py"), "seal", str(planted)])
+            self.assertEqual(seal.returncode, 0, seal.stderr)
+            digest = re.search(r"sha256 ([0-9a-f]{64})", seal.stdout).group(1)
+            self.assertIn("3 planted: 2 wrong_entry, 1 omission", seal.stdout)
+            r = run([PY, str(TOOLS / "planted.py"), "score", str(planted), str(out), "--seal", digest])
+            self.assertEqual(r.returncode, 0, r.stderr)
+            self.assertIn('"planted_errors": 3, "planted_missed": 1', r.stdout)
+            self.assertIn("omission: 1 planted, 1 missed", r.stdout)
+            self.assertIn("wrong_entry: 2 planted, 0 missed", r.stdout)
+
+    def test_a_list_changed_after_sealing_is_refused(self):
+        with tempfile.TemporaryDirectory() as d:
+            planted, out = self.files(d)
+            digest = re.search(r"sha256 ([0-9a-f]{64})",
+                               run([PY, str(TOOLS / "planted.py"), "seal", str(planted)]).stdout).group(1)
+            planted.write_text(PLANTED.replace("E3,omission", "E3,wrong_entry"), encoding="utf-8")
+            r = run([PY, str(TOOLS / "planted.py"), "score", str(planted), str(out), "--seal", digest])
+            self.assertNotEqual(r.returncode, 0)
+            self.assertIn("does not match the seal", r.stderr)
+
+    def test_every_error_needs_an_outcome_and_a_known_kind(self):
+        with tempfile.TemporaryDirectory() as d:
+            planted, out = self.files(d, outcome="error_id,caught\nE1,yes\nE2,yes\n")
+            r = run([PY, str(TOOLS / "planted.py"), "score", str(planted), str(out)])
+            self.assertNotEqual(r.returncode, 0)
+            self.assertIn("E3", r.stderr)
+            planted.write_text(PLANTED.replace("omission", "gap"), encoding="utf-8")
+            r = run([PY, str(TOOLS / "planted.py"), "seal", str(planted)])
+            self.assertNotEqual(r.returncode, 0)
+            self.assertIn("wrong_entry or omission", r.stderr)
+
+    def test_summary_of_the_section_10_5_comparison(self):
+        rows = ["person,experience,way,task_id,error_id,kind,caught"]
+        rates = {("no", "one_agent"): (6, 2), ("no", "process"): (7, 6), ("yes", "one_agent"): (8, 4),
+                 ("yes", "process"): (9, 8)}       # caught per ten; each cell has 20 wrong entries and 20 omissions
+        for (exp, way), (wrong, omit) in rates.items():
+            for p in range(5):
+                for e in range(4):
+                    k = p * 4 + e
+                    rows.append(f"{exp}{way}{p},{exp},{way},T{e},W{e},wrong_entry,{'yes' if k % 10 < wrong else 'no'}")
+                    rows.append(f"{exp}{way}{p},{exp},{way},T{e},O{e},omission,{'yes' if k % 10 < omit else 'no'}")
+        with tempfile.TemporaryDirectory() as d:
+            ledger = Path(d) / "ledger.csv"
+            ledger.write_text("\n".join(rows) + "\n", encoding="utf-8")
+            r = run([PY, str(TOOLS / "planted.py"), "summary", str(ledger), "--draws", "300"])
+        self.assertEqual(r.returncode, 0, r.stderr)
+        self.assertRegex(r.stdout, r"no\s+one_agent\s+5\s+0\.60 .*0\.20 ")
+        self.assertRegex(r.stdout, r"yes\s+process\s+5\s+0\.90 .*0\.80 ")
+        # Section 6.5: 0.60 against 0.40 for omissions, 0.70 against 0.80 for wrong entries
+        self.assertIn("newcomer with the process minus expert who accepts on sight: wrong_entry -0.10", r.stdout)
+        self.assertIn("newcomer with the process minus expert who accepts on sight: omission +0.20", r.stdout)
+
+
+class Power(unittest.TestCase):
+    """tools/power.py reproduces the sample sizes the paper and the kits state."""
+
+    def test_the_papers_numbers(self):
+        import power
+        self.assertAlmostEqual(power.power(0.5, 0.05, 1500), 0.78, places=2)     # Section 11.2: "about 0.8"
+        self.assertAlmostEqual(power.power(0.5, 0.05, 400), 0.29, places=2)      # "only about 30% of the time"
+        self.assertAlmostEqual(power.half_width(0.7, 400), 0.064, places=3)      # matched-task kit: "about 6 points"
+        self.assertGreater(power.parity_chance(0.7, 0.10, 1500), 0.999)            # F2: lower bound above -10 points
+        self.assertEqual(power.n_for_power(0.5, 0.05, 0.8), 1562)
+
+    def test_cli(self):
+        r = run([PY, str(TOOLS / "power.py"), "--p", "0.5", "--diff", "0.05", "--n", "1500"])
+        self.assertEqual(r.returncode, 0, r.stderr)
+        self.assertIn("power 0.78", r.stdout)
+        r = run([PY, str(TOOLS / "power.py"), "--p", "0.5", "--diff", "0.05", "--power", "0.8"])
+        self.assertIn("1562 per group", r.stdout)
+
+
+class ReferenceHours(unittest.TestCase):
+    def test_two_close_estimates_give_their_geometric_mean(self):
+        r = run([PY, str(TOOLS / "reference_hours.py"), "8", "10.5"])
+        self.assertEqual(r.returncode, 0, r.stderr)
+        self.assertIn("reference hours 9.2 (geometric mean of two estimates 1.31 apart); the piece reaches Day size",
+                      r.stdout)
+        self.assertIn("rater_hours 8;10.5", r.stdout)
+
+    def test_far_apart_estimates_ask_for_a_third_rater_and_the_median_decides(self):
+        r = run([PY, str(TOOLS / "reference_hours.py"), "6", "10"])
+        self.assertIn("needs a third rater", r.stdout)
+        self.assertNotIn("reference hours", r.stdout)
+        r = run([PY, str(TOOLS / "reference_hours.py"), "6", "10", "7"])
+        self.assertIn("reference hours 7.0 (median of three", r.stdout)
+        self.assertIn("the piece reaches Hour size", r.stdout)            # 7 hours is short of Day's 8
+
+    def test_the_cell_is_read_back_by_the_scorer_rule(self):
+        # horizon.py prints "needs third rater" exactly when the estimates are more than 1.5 apart
+        import reference_hours
+        self.assertFalse(reference_hours.combine([8, 12])[2])
+        self.assertTrue(reference_hours.combine([8, 12.1])[2])
+        self.assertEqual(horizon.RATER_SPREAD, 1.5)
+
+
+class SpreadsheetCard(unittest.TestCase):
+    """record_card.py reads what spreadsheets really save, and names what it cannot read."""
+
+    def record(self, path):
+        r = run([PY, "record_card.py", str(path), "--as-of", "2026-10-09", "--format", "record"])
+        self.assertEqual(r.returncode, 0, r.stderr)
+        return r.stdout
+
+    def test_european_csv_gives_the_same_records(self):
+        with tempfile.TemporaryDirectory() as d:
+            for name, comma in (("team-log.csv", False), ("c4-log.csv", True)):
+                with self.subTest(log=name):
+                    eu = european_csv(ROOT / "examples" / name, d, decimal_comma=comma)
+                    self.assertEqual(self.record(eu), self.record(ROOT / "examples" / name))
+
+    def test_an_unreadable_date_is_named_without_a_traceback(self):
+        with tempfile.TemporaryDirectory() as d:
+            r = run([PY, "record_card.py", str(us_date_csv(d)), "--as-of", "2026-10-09"])
+            self.assertNotEqual(r.returncode, 0)
+            self.assertIn("row 2", r.stderr)
+            self.assertIn("YYYY-MM-DD", r.stderr)
+            self.assertNotIn("Traceback", r.stderr)
 
 
 class LogPiece(unittest.TestCase):
@@ -232,15 +473,17 @@ class Liveness(unittest.TestCase):
 
     def test_github_repo_recent_old_archived(self):
         cases = [({"pushed_at": "2027-09-01T00:00:00Z"}, "yes"), ({"pushed_at": "2026-01-01T00:00:00Z"}, "no"),
-                 ({"pushed_at": "2027-09-01T00:00:00Z", "archived": True}, "no")]
+                 ({"pushed_at": "2027-09-01T00:00:00Z", "archived": True}, "yes")]   # F27: archived is not retired
         for data, alive in cases:
             with self.subTest(data=data), mock.patch.object(liveness, "fetch", return_value=(200, json.dumps(data).encode())) as f:
                 self.assertEqual(liveness.check("https://github.com/a/b.git", self.TODAY, 180, 5)["alive"], alive)
                 f.assert_called_with("https://api.github.com/repos/a/b", 5)
+            self.assertEqual(liveness.github_repo("https://www.GitHub.com/a/b/tree/main?tab=x"), "a/b")
 
     def test_plain_url(self):
-        for status, alive in [(200, "yes"), (301, "yes"), (404, "no"), (0, "no")]:
-            with self.subTest(status=status), mock.patch.object(liveness, "fetch", return_value=(status, b"")):
+        for status, alive in [(200, "yes"), (301, "yes"), (404, "no"), (0, "no"), (403, "unknown"), (503, "unknown")]:
+            with self.subTest(status=status), mock.patch.object(liveness, "fetch", return_value=(status, b"")), \
+                    mock.patch.object(liveness, "pause"):
                 self.assertEqual(liveness.check("https://example.org", self.TODAY, 180, 5)["alive"], alive)
 
     def test_cli_writes_dated_csv(self):
@@ -249,13 +492,51 @@ class Liveness(unittest.TestCase):
             sample.write_text("name,url,category\nA,https://a.example,notes\nB,https://b.example,crm\n")
             argv = ["liveness.py", str(sample), "--out", str(out), "--as-of", "2027-10-09"]
             with mock.patch.object(sys, "argv", argv), \
-                    mock.patch.object(liveness, "fetch", side_effect=[(200, b""), (500, b"")]), \
-                    contextlib.redirect_stdout(io.StringIO()) as buf:
+                    mock.patch.object(liveness, "fetch", side_effect=[(200, b""), (404, b"")]), \
+                    contextlib.redirect_stdout(io.StringIO()) as buf, contextlib.redirect_stderr(io.StringIO()):
                 liveness.main()
             rows = list(csv.DictReader(out.open()))
             self.assertEqual([r["alive"] for r in rows], ["yes", "no"])
             self.assertEqual(rows[0]["category"], "notes")
-            self.assertIn("1 of 2 alive", buf.getvalue())
+            self.assertIn("1 of 2 alive, 1 retired (50.0% of the 2 decided)", buf.getvalue())
+            self.assertEqual(rows[0]["as_of"], "2027-10-09")
+            self.assertEqual(rows[0]["checked"], dt.date.today().isoformat())
+
+    def test_rate_limit_waits_for_the_reset_and_retries(self):
+        limited = (403, b"", {"X-RateLimit-Remaining": "0", "X-RateLimit-Reset": str(10 ** 10)})
+        ok = (200, json.dumps({"pushed_at": "2027-09-01T00:00:00Z"}).encode(), {})
+        waits = []
+        with mock.patch.object(liveness, "fetch", side_effect=[limited, ok]), \
+                mock.patch.object(liveness, "pause", side_effect=waits.append), \
+                contextlib.redirect_stderr(io.StringIO()) as err:
+            self.assertEqual(liveness.check("https://github.com/a/b", self.TODAY, 365, 5)["alive"], "yes")
+        self.assertEqual(waits, [liveness.MAX_WAIT])
+        self.assertIn("rate limit", err.getvalue())
+        self.assertEqual(liveness.wait_for(429, {"x-ratelimit-remaining": "0", "x-ratelimit-reset": "1060"}, 0,
+                                           now=1000), 61)
+
+    def test_a_limit_that_never_lifts_is_unknown_not_retired(self):
+        with mock.patch.object(liveness, "fetch", return_value=(403, b"", {})), mock.patch.object(liveness, "pause"), \
+                contextlib.redirect_stderr(io.StringIO()):
+            self.assertEqual(liveness.check("https://github.com/a/b", self.TODAY, 365, 5)["alive"], "unknown")
+
+    def test_token_from_the_environment(self):
+        ok = (200, json.dumps({"pushed_at": "2027-09-01T00:00:00Z"}).encode(), {})
+        with mock.patch.dict(liveness.os.environ, {"GITHUB_TOKEN": "t0k"}), \
+                mock.patch.object(liveness, "fetch", return_value=ok) as f:
+            liveness.check("https://github.com/a/b", self.TODAY, 365, 5)
+        self.assertEqual(f.call_args[0][2], {"Authorization": "Bearer t0k"})
+
+    def test_a_push_after_the_scoring_date_goes_to_the_hand_check(self):
+        late = (200, json.dumps({"pushed_at": "2027-10-20T00:00:00Z"}).encode())
+        with mock.patch.object(liveness, "fetch", return_value=late):
+            r = liveness.check("https://github.com/a/b", self.TODAY, 365, 5)
+        self.assertEqual(r["alive"], "unknown")
+        self.assertIn("updated after the date", r["note"])
+
+    def test_an_address_without_a_scheme_does_not_stop_the_run(self):
+        with mock.patch.object(liveness, "pause"):
+            self.assertEqual(liveness.fetch("example.com/app", 1)[0], 0)
 
 
 class NameRace(unittest.TestCase):
@@ -306,8 +587,9 @@ class NameRace(unittest.TestCase):
             self.assertEqual(rows[1], ["agentwright", "2025", "1", "2"])
 
     def test_default_names_cover_both_tables(self):
-        for name in ("agent manager", "agentwright", "delegation horizon", "credential crossover"):
-            self.assertIn(name, name_race.DEFAULT_NAMES)
+        self.assertEqual(name_race.DEFAULT_NAMES, name_race.read_names(name_race.NAMES_FILE))
+        for name in ("agent manager", "agentwright", "verified delegation horizon", "credential crossover point"):
+            self.assertIn(name, [n.lower() for n in name_race.DEFAULT_NAMES])
 
 
 class DegreeShare(unittest.TestCase):
@@ -375,6 +657,13 @@ class TooClean(unittest.TestCase):
         pieces = horizon.load(str(C4))
         self.assertFalse(any("no failed" in f for f in too_clean.flags(pieces, 10)))
 
+    def test_c4_example_is_flagged_for_sizes_just_above_day(self):
+        # Appendix C4 quotes this flag: five of the ten pieces were rated at exactly 8 hours, the floor of Day
+        r = run([PY, str(TOOLS / "too_clean.py"), str(C4), "--as-of", "2026-10-09"])
+        self.assertEqual(r.returncode, 1, r.stdout + r.stderr)
+        self.assertIn("P07: small-business bookkeeping: audit first\n  - 5 of 10 pieces sit just above a rung threshold",
+                      r.stdout)
+
     def test_suspicious_log_is_flagged(self):
         pieces = [piece(date="2026-09-20", reference_hours=8.2, attention_minutes=60) for _ in range(12)]
         with tempfile.TemporaryDirectory() as d:
@@ -383,6 +672,16 @@ class TooClean(unittest.TestCase):
             self.assertEqual(r.returncode, 1)
             for trace in ("no failed", "just above a rung threshold", "barely vary", "one day"):
                 self.assertIn(trace, r.stdout)
+
+    def test_identical_sizes_and_one_kind_of_check_are_flagged(self):
+        # README, "How to audit a record": identical sizes or every check of one kind is a reason to look closer
+        pieces = [dict(piece(date=f"2026-09-{i + 1:02d}", reference_hours=40, attention_minutes=100 + 37 * i,
+                             check="hidden_tests", passed=i != 4, planted_errors=1)) for i in range(10)]
+        out = too_clean.flags([dict(p, date=dt.date.fromisoformat(p["date"])) for p in pieces], 10)
+        self.assertIn("reference hours barely vary between pieces", out)
+        self.assertIn("every piece was checked by one kind of check (hidden_tests)", out)
+        c4 = too_clean.flags(horizon.load(str(C4)), 10)
+        self.assertFalse(any("barely vary" in f or "one kind" in f for f in c4), c4)
 
     def test_small_logs_are_skipped(self):
         self.assertEqual(too_clean.flags([piece()] * 3, 10), [])

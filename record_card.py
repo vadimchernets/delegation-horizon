@@ -18,8 +18,11 @@ import argparse
 import csv
 import datetime as dt
 import hashlib
+import io
 import json
+import math
 import os
+import re
 import statistics
 import sys
 import tempfile
@@ -37,57 +40,206 @@ TRUE, FALSE = {"true", "yes", "y", "1"}, {"false", "no", "n", "0"}
 NUMBERS = {"reference_hours": float, "attention_minutes": float,
            "planted_errors": int, "planted_missed": int}
 FLAGS = {"agent_saw_check", "passed", "irreversible", "outside_help", "revoked"}
+DATES = ("started", "date")
+
+
+def spreadsheet_date(text):
+    """A date as a spreadsheet saved it: 2026-09-14 stays, 14.09.2026 (day first, as European spreadsheets write it)
+    becomes 2026-09-14. Anything else, such as 9/14/2026, whose day and month cannot be told apart, gives None."""
+    m = re.fullmatch(r"(\d{1,2})\.(\d{1,2})\.(\d{4})", text)
+    if m:
+        text = f"{m.group(3)}-{int(m.group(2)):02d}-{int(m.group(1)):02d}"
+    if not re.fullmatch(r"\d{4}-\d{2}-\d{2}", text):
+        return None
+    try:
+        return dt.date.fromisoformat(text).isoformat()
+    except ValueError:
+        return None
+
+
+def read_text(path):
+    """The file as text: UTF-8 with or without a BOM, or Windows-1252, the code page spreadsheets on Windows save
+    CSV in."""
+    with open(path, "rb") as fh:
+        raw = fh.read()
+    for codec in ("utf-8-sig", "cp1252"):
+        try:
+            return raw.decode(codec)
+        except UnicodeDecodeError:
+            continue
+    sys.exit(f"{path}: the file is neither UTF-8 nor Windows-1252 text; save it again as CSV UTF-8")
+
+
+class AmbiguousNumber(ValueError):
+    """A number such as 1.030, which one spreadsheet writes for a thousand and thirty and another for 1.03."""
+
+
+def semicolon_number(text):
+    """In a file saved with semicolons, 8,5 is eight and a half and 1.030,5 is a thousand and thirty and a half; any
+    other dot is a decimal point (8.5, 0.125). A number such as 1.030 or 8.125 with no comma is a thousand and thirty
+    in a German spreadsheet and one point zero three in a Swiss one, so it is refused, never guessed."""
+    if re.fullmatch(r"[1-9]\d{0,2}(?:\.\d{3})+,\d+", text):
+        return text.replace(".", "").replace(",", ".")
+    if re.fullmatch(r"[1-9]\d{0,2}(?:\.\d{3})+", text):
+        raise AmbiguousNumber(text)
+    return text.replace(",", ".")
+
+
+PLAIN_NUMBER = re.compile(r"[+-]?(?:[0-9]+(?:\.[0-9]*)?|\.[0-9]+)(?:[eE][+-]?[0-9]+)?")
+
+
+def finite(text):
+    """float(text) for a number written plainly in the digits 0 to 9 (as checker.html reads it) and finite: nan, inf,
+    1e999, 1_000, 0x10 and digits of other scripts raise ValueError like any other non-number."""
+    if not PLAIN_NUMBER.fullmatch(text):
+        raise ValueError(text)
+    value = float(text)
+    if not math.isfinite(value):
+        raise ValueError(text)
+    return value
+
+
+def iso_date(text):
+    """--as-of: a date written YYYY-MM-DD, or a message from argparse instead of a traceback."""
+    try:
+        return dt.date.fromisoformat(text)
+    except ValueError:
+        raise argparse.ArgumentTypeError(f"must be a date written YYYY-MM-DD, got {text!r}") from None
+
+
+THOUSANDS = "must be written without a dot between thousands (1030) or with a decimal comma (1,03)"
+
+
+def csv_rows(path):
+    """(record, physical line) for each row of the spreadsheet template: the same columns as the JSON log. Blank
+    lines before the header are skipped. A file saved with semicolons (as spreadsheets set to a European language
+    save CSV) is read with semicolons, decimal commas and dots between thousands. checker.html reads it the same way."""
+    text = read_text(path)
+    lead = re.match(r"(?:[ \t]*(?:\r\n|\r|\n))*", text).group(0)
+    first = len(re.findall(r"\r\n|\r|\n", lead))            # blank lines before the header
+    body = text[len(lead):]
+    header = re.split(r"\r\n|\r|\n", body, maxsplit=1)[0]
+    semicolon = header.count(";") > header.count(",")
+    reader = csv.reader(io.StringIO(body, newline=""), delimiter=";" if semicolon else ",")
+    head = [h.strip() for h in next(reader, [])]
+    out = []
+    for cells in reader:
+        n = first + reader.line_num                            # the physical line the row ends on
+        row = {h: (cells[j] if j < len(cells) else "").strip() for j, h in enumerate(head) if h}
+        if not any(row.values()):
+            continue
+        for key in horizon.OPTIONAL:                           # an empty optional cell is no field
+            if not row.get(key):
+                row.pop(key, None)
+        for key in DATES:
+            if key in row:
+                iso = spreadsheet_date(row[key])
+                if iso is None:
+                    sys.exit(f"row {n}: {key} must be a date written YYYY-MM-DD (or DD.MM.YYYY), got {row[key]!r}; "
+                             "set the column to text in the spreadsheet and type the date as 2026-09-14")
+                row[key] = iso
+        if "rater_hours" in row:                               # "6;10" in a spreadsheet cell
+            cell = row["rater_hours"]
+            parts = cell.split(";") if semicolon else cell.replace(",", ";").split(";")
+            try:
+                row["rater_hours"] = [finite(semicolon_number(x.strip()) if semicolon else x.strip()) for x in parts
+                                      if x.strip()]
+            except AmbiguousNumber:
+                sys.exit(f"row {n}: rater_hours {THOUSANDS}, got {cell!r}")
+            except ValueError:
+                sys.exit(f"row {n}: rater_hours must be numbers separated by ';', got {cell!r}")
+        for key, kind in NUMBERS.items():
+            if key in row:
+                try:
+                    value = finite(semicolon_number(row[key]) if semicolon else row[key])
+                    row[key] = int(value) if kind is int or value.is_integer() else value
+                except AmbiguousNumber:
+                    sys.exit(f"row {n}: {key} {THOUSANDS}, got {row[key]!r}")
+                except (ValueError, OverflowError):
+                    sys.exit(f"row {n}: {key} must be a number, got {row[key]!r}")
+        for key in FLAGS:
+            if key in row:
+                word = row[key].lower()
+                if word not in TRUE | FALSE:
+                    sys.exit(f"row {n}: {key} must be yes or no, got {row[key]!r}")
+                row[key] = word in TRUE
+        out.append((row, n))
+    return out
 
 
 def csv_to_records(path):
-    """Read the spreadsheet template: one row per piece, the same columns as the JSON log."""
-    records = []
-    with open(path, newline="", encoding="utf-8-sig") as fh:
-        for n, row in enumerate(csv.DictReader(fh), 2):
-            row = {k.strip(): (v or "").strip() for k, v in row.items() if k and k.strip()}
-            if not any(row.values()):
-                continue
-            for key in horizon.OPTIONAL:                 # an empty optional cell is no field
-                if not row.get(key):
-                    row.pop(key, None)
-            if "rater_hours" in row:                     # "6;10" in a spreadsheet cell
-                try:
-                    row["rater_hours"] = [float(x) for x in row["rater_hours"].replace(",", ";").split(";") if x.strip()]
-                except ValueError:
-                    sys.exit(f"row {n}: rater_hours must be numbers separated by ';', got {row['rater_hours']!r}")
-            for key, kind in NUMBERS.items():
-                if key in row:
-                    try:
-                        value = float(row[key])
-                    except ValueError:
-                        sys.exit(f"row {n}: {key} must be a number, got {row[key]!r}")
-                    row[key] = int(value) if kind is int or value.is_integer() else value
-            for key in FLAGS:
-                if key in row:
-                    word = row[key].lower()
-                    if word not in TRUE | FALSE:
-                        sys.exit(f"row {n}: {key} must be yes or no, got {row[key]!r}")
-                    row[key] = word in TRUE
-            records.append(row)
-    return records
+    """Read the spreadsheet template: one record per row (see csv_rows)."""
+    return [row for row, _ in csv_rows(path)]
+
+
+def jsonl_lines(path):
+    """The lines of a JSON Lines log, each checked for JSON and for dates written YYYY-MM-DD, so a mistake is named
+    with its line instead of stopping with a traceback; a BOM is dropped. Physical line numbers are kept."""
+    text = read_text(path)
+    for n, line in enumerate(re.split(r"\r\n|\r|\n", text), 1):
+        if not line.strip():
+            continue
+        try:
+            r = json.loads(line)
+        except ValueError:
+            sys.exit(f"line {n}: not valid JSON")
+        for key in DATES:
+            if isinstance(r, dict) and key in r and spreadsheet_date(str(r[key])) != r[key]:
+                sys.exit(f"line {n}: {key} {r[key]!r} is not a date written YYYY-MM-DD")
+        for key in sorted(FLAGS):                  # horizon.py reads "no" as true; say so before it scores
+            if isinstance(r, dict) and key in r and not isinstance(r[key], bool):
+                sys.exit(f"line {n}: {key} must be true or false, without quotes, got {r[key]!r}")
+    return text
 
 
 def load_any(path):
-    """Validate through horizon.load, so a CSV log obeys exactly the rules of a JSON log."""
-    if not path.lower().endswith(".csv"):
-        return horizon.load(path)
+    """Validate through horizon.load, so a CSV log obeys exactly the rules of a JSON log. A rule horizon.load names
+    by its line is reported with the row of the spreadsheet it came from."""
     fd, tmp = tempfile.mkstemp(suffix=".jsonl")
     try:
+        if not path.lower().endswith(".csv"):
+            with os.fdopen(fd, "w", encoding="utf-8", newline="") as fh:
+                fh.write(jsonl_lines(path))
+            return horizon.load(tmp)
+        rows = csv_rows(path)
         with os.fdopen(fd, "w", encoding="utf-8") as fh:
-            for r in csv_to_records(path):
+            for r, _ in rows:
                 fh.write(json.dumps(r) + "\n")
-        return horizon.load(tmp)
+        try:
+            return horizon.load(tmp)
+        except SystemExit as stop:
+            m = re.match(r"line (\d+): (.*)", str(stop.code), re.S)
+            if m and 0 < int(m.group(1)) <= len(rows):
+                sys.exit(f"row {rows[int(m.group(1)) - 1][1]}: {m.group(2)}")
+            raise
     finally:
         os.remove(tmp)
 
 
 def pretty_step(s):
     return s.replace("x", "×")
+
+
+def passes_needed(n):
+    """The fewest verified pieces out of n that meet the pass share, by the comparison horizon.py makes."""
+    return next((k for k in range(n + 1) if n and k / n >= horizon.PASS_SHARE), 0)
+
+
+def needed_note(rung, n):
+    """What the rung asks of n pieces of its size: the verified ones needed, or the pieces too when n is short."""
+    minimum = next(r[2] for r in horizon.RUNGS if r[0] == rung)
+    if n < minimum:
+        return f"{minimum} pieces and {passes_needed(minimum)} verified needed"
+    return f"{passes_needed(n)} needed"
+
+
+def below_hour_note(counted):
+    """Why Hour is not earned when the count of Hour-size pieces would meet it: an irreversible piece not verified."""
+    minimum = next(r[2] for r in horizon.RUNGS if r[0] == "Hour")
+    v, n = sum(map(horizon.verified, counted)), len(counted)
+    if n >= minimum and v >= passes_needed(n) and any(r["irreversible"] and not horizon.verified(r) for r in counted):
+        return "Hour not earned: an irreversible piece is not verified (every irreversible piece must pass)"
+    return f"Hour not earned: {needed_note('Hour', n)}"
 
 
 def summarise(records, as_of):
@@ -105,8 +257,12 @@ def summarise(records, as_of):
         good = [r for r in recent if horizon.verified(r)]
         g = horizon.gain(recent)
         rung = horizon.horizon(pieces, as_of)
+        counted = horizon.rung_pieces(pieces, rung, as_of)
+        sized, _, _, window = next(r for r in horizon.RUNGS if r[0] == rung or (rung == "below Hour" and r[0] == "Hour"))
         out.append({
             "person": person, "domain": domain, "rung": rung, "size": SIZES[rung],
+            "count": (sum(map(horizon.verified, counted)), len(counted), sized, window,
+                      below_hour_note(counted) if rung == "below Hour" else needed_note(sized, len(counted))),
             "step": pretty_step(horizon.step(g)), "gain": g, "quarter": quarter, "as_of": as_of,
             "pieces": len(recent), "verified": len(good), "not_verified": len(recent) - len(good),
             "checks": sorted({r["check"] for r in good}),
@@ -128,8 +284,11 @@ def record_line(s):
 def facts(s):
     gain = "n/a" if s["gain"] is None else f"{s['gain']:.2f}"
     median = "n/a" if s["median_size"] is None else f"{s['median_size']:g} reference hours"
+    verified, total, sized, window, needed = s["count"]
     return [
         ("Horizon", f"{s['rung']} ({s['size']}), scored by the rule of Section 5.2"),
+        ("Count behind the rung", f"{verified} of {total} pieces of {sized} size verified in its {window}-day window "
+                                  f"({needed})"),
         ("Amplification", f"{s['step']} (gain {gain}: {s['verified_hours']:g} verified reference hours "
                           f"for {s['attention_hours']:.1f} hours of attention, failures included)"),
         ("Pieces, last 91 days", f"{s['pieces']} logged, {s['verified']} verified, "
@@ -182,7 +341,7 @@ def export(s, log_hash, scorer_hash):
 def main(argv=None):
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     ap.add_argument("log", help="work log: .jsonl (Appendix C1) or .csv (templates/work-log.csv)")
-    ap.add_argument("--as-of", default=dt.date.today().isoformat())
+    ap.add_argument("--as-of", type=iso_date, default=dt.date.today())
     ap.add_argument("--format", choices=["record", "txt", "md", "json"], default="txt",
                     help="json: one portable record per line (export-record.schema.json)")
     ap.add_argument("--person", help="only this pseudonymous label")
@@ -199,7 +358,7 @@ def main(argv=None):
         horizon.load(args.to_jsonl)          # the converted log must pass the scorer's checks
         print(f"wrote {len(rows)} lines to {args.to_jsonl}")
         return
-    as_of = dt.date.fromisoformat(args.as_of)
+    as_of = args.as_of
     found = [s for s in summarise(load_any(args.log), as_of)
              if args.person is None or s["person"] == args.person]
     log_hash, scorer_hash = sha256(args.log), sha256(horizon.__file__)

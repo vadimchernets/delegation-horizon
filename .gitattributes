@@ -1,0 +1,5 @@
+# Every file is checked out byte for byte as it was committed, on every system. Tests compare the SHA-256 of the
+# files registered on OSF (tests/test_registered.py, predictions/set_b.py, tools/verify_record.py), and Git for
+# Windows sets core.autocrlf=true by default, which would otherwise rewrite line ends on checkout. The CSV files
+# keep the CRLF line ends Python's csv module wrote; the rest keep LF.
+* -text

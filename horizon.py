@@ -9,6 +9,7 @@ Usage: python3 horizon.py work-log.jsonl --as-of 2026-10-09 [--stable]   Rules v
 import argparse
 import datetime as dt
 import json
+import math
 import sys
 import statistics
 from collections import Counter, defaultdict
@@ -110,9 +111,9 @@ def rung_pieces(pieces, name, as_of):
 
 
 def gain(pieces):
-    done = sum(float(r["reference_hours"]) for r in pieces
-               if verified(r) and not r["outside_help"])                  # outside help excluded
-    spent = sum(float(r["attention_minutes"]) for r in pieces) / 60.0   # failures included
+    done = math.fsum(float(r["reference_hours"]) for r in pieces
+                     if verified(r) and not r["outside_help"])            # outside help excluded
+    spent = math.fsum(float(r["attention_minutes"]) for r in pieces) / 60.0   # failures included
     return None if spent == 0 else done / spent
 
 
@@ -158,7 +159,7 @@ def main():
         sizes = [float(r["reference_hours"]) for r in recent if r["passed"]]
         median = f"{statistics.median(sizes):.1f} h" if sizes else "n/a"
         spread = any(max(map(float, r["rater_hours"])) / min(map(float, r["rater_hours"])) > RATER_SPREAD
-                     for r in pieces if "rater_hours" in r)
+                     for r in pieces if len(r.get("rater_hours", [])) == 2)   # with three, the median decided
         print(f"  checks: {', '.join(f'{k} {v}' for k, v in kinds) or 'none'};"
               f" median accepted size {median}{'; needs third rater' if spread else ''}")
 

@@ -33,7 +33,9 @@ not count.
 |---|---|
 | Hidden checks | (tests, a reviewer's checklist, or the real-use signal that decides acceptance) |
 | Who runs the check | (must gain nothing from a pass) |
-| Planted errors | (each error, where it sits in the inputs, and what catching it looks like; required from Week upward) |
+| Planted errors | (each error, its kind, where it sits in the inputs or what they leave out, and what catching it looks like; required from Week upward, and from Week upward at least one should be an omission wherever the work has something it must contain; the list as in `kits/planted-errors-guide.md`) |
+| Kind of each planted error | wrong entry (something in the material is wrong) / omission (something the work must contain is missing) |
+| SHA-256 of the sealed list | (from `python3 tools/planted.py seal`, written here before the hand-over) |
 | How a miss is recorded | (any missed planted error makes the piece unverified and blocks Week and above in the window) |
 | Delayed outcome | (what to record later, and when: a filing accepted, a release still running after a month) |
 

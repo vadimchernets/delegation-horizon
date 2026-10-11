@@ -18,10 +18,10 @@ delegation horizon**); for every hour of their own attention they get at least t
 | **Paper, archived** | [10.5281/zenodo.23267267](https://doi.org/10.5281/zenodo.23267267) |
 | **Paper, full text on GitHub** | [vadimchernets/papers/after-the-programmer-divide](https://github.com/vadimchernets/papers/tree/main/after-the-programmer-divide) |
 | **Predictions, registered on OSF** | [10.17605/OSF.IO/VW6P9](https://doi.org/10.17605/OSF.IO/VW6P9) |
-| **This code, archived** | [10.5281/zenodo.23267444](https://doi.org/10.5281/zenodo.23267444) |
+| **This code, archived** | [10.5281/zenodo.23267444](https://doi.org/10.5281/zenodo.23267444) (concept DOI: it resolves to the latest release, v1.1.0) |
 | **Tests** | `python3 -m unittest discover -v`, run on every push for Python 3.9 to 3.13 |
 
-Python 3.9 or later, standard library only. No accounts, no keys, no network: everything runs on your own computer
+Python 3.9 or later, standard library only (the figure script in `figures/` also uses matplotlib). No accounts, no keys, no network: everything runs on your own computer
 and your log never leaves it.
 
 ## Five minutes, no programming
@@ -43,9 +43,16 @@ profile or send to an employer, or `--format record` for the single line a resum
 to score on another date.
 
 No terminal at all? Open `checker.html` in a browser (double-click it), choose your CSV or JSON Lines log, and you
-get the same record and counts as `horizon.py`, with the same rules; the file never leaves your computer and the
-page needs no network. A test runs the page's scorer against `horizon.py` on the worked example and on 40 random
-logs. `python3 tools/log_piece.py my-log.jsonl` writes log lines by asking questions instead.
+get the same record and counts as `horizon.py`, with the same rules and the same addition (`math.fsum`, correctly
+rounded, so a gain that lands exactly on a step, such as 2.00, prints the same on every Python from 3.9); the file
+never leaves your computer and the page needs no network. A test runs the page's scorer against `horizon.py` on the worked example and on 40 random
+logs. `python3 tools/log_piece.py my-log.jsonl` writes log lines by asking questions instead. A spreadsheet saved
+with semicolons and day.month.year dates, as spreadsheets set to a European language save it, is read as it is.
+
+Want to know why the log earns the rung it earns, and what the next rung needs? Run
+`python3 tools/explain.py my-log.csv`: it names each condition of the rule that holds or fails and the piece that
+decides, how many more failures the rung can absorb, the day it lapses if nothing new is logged, and every
+condition the next rung still lacks.
 
 Try it on the worked example first:
 
@@ -99,11 +106,15 @@ Ask for the log behind the record; the card says it is available on request. The
 
 1. **Rescore it.** `python3 horizon.py their-log.jsonl --as-of <date on the card>` must print the same line. A card
    written with `--format json` carries the SHA-256 of the log and of the scorer, so a different log or a changed
-   scorer shows at once.
+   scorer shows at once. `python3 tools/verify_record.py record.json their-log.csv` does all three in one step and
+   prints every difference: whether the log is the file that was scored, whether the scorer is the same, and whether
+   rescoring on the record's date gives the same record, field by field.
 2. **Draw a sample for a second check.** `python3 audit_sample.py their-log.jsonl --as-of <date>` draws a
-   reproducible random share of accepted pieces (seed printed; the default seed is the date), at least one per person
-   and domain; `--all-irreversible` adds every irreversible piece. Give the sample to a checker who did not see the
-   first check.
+   reproducible random share of accepted pieces, at least one per person
+   and domain; `--all-irreversible` adds every irreversible piece. The seed comes from the SHA-256 of the closed log,
+   the date and `--salt`, a word the second checker picks after receiving the log, so the person logging cannot know
+   in advance which lines are drawn; the log's hash and the seed are printed. Give the sample to a checker who did
+   not see the first check.
 3. **Read the pattern, not only the result.** A log with no failures, identical sizes, or every check of one kind is
    a reason to look closer (Table 3 of the paper lists the ways the measure can be gamed and the defence for each).
    A rung with `self_review`, `same_family` or `none` behind it is not a rung, and the scorer does not count those.
@@ -142,17 +153,29 @@ spreadsheet log.
 | C1 | `log.schema.json` | JSON Schema of one log line |
 | C4 | `examples/c4-log.jsonl`, `c4-log.csv`, `c4-expected.txt` | The worked example and the lines it must print |
 | 5.2 | `examples/team-log.jsonl`, `team-log.csv`, `team-expected.txt` | A team of four, five domains, Week and planted errors, and the lines it must print |
-| 5.3 | `record_card.py` | Reads a JSON or spreadsheet log and prints the record and a card (text, Markdown or portable JSON), using `horizon.py` unchanged |
+| 5.3 | `record_card.py` | Reads a JSON or spreadsheet log and prints the record and a card (text, Markdown or portable JSON), with the count behind the rung, using `horizon.py` unchanged |
+| 5.2, 5.8, C4 | `tools/explain.py` | The reasons behind a verdict: each condition of the rule, the slack, the day the rung lapses, what the next rung needs, and the exact interval of the pass rate a count fits |
 | 5 | `checker.html` | The same scoring in a browser page, offline, for people who do not use a terminal |
 | 5.2 | `tools/log_piece.py`, `integrations/claude-code-hook/`, `kits/acceptance-card.md` | Writing the log: questions instead of JSON, an entry opened after every agent session so failures are not lost, and a card that states "done" before the hand-over |
 | 10.3 | `export-record.schema.json` | Portable record format, with hashes of the log and the scorer |
-| 5.8, Table 3 | `audit_sample.py`, `tools/too_clean.py`, `kits/audit-checklist.md`, `kits/planted-errors-guide.md` | Reproducible audit sample; flags for logs that look too clean; audit checklist; how to prepare and seal planted errors |
+| 5.8, Table 3 | `audit_sample.py`, `tools/too_clean.py`, `kits/audit-checklist.md`, `kits/planted-errors-guide.md`, `tools/planted.py` | Reproducible audit sample; flags for logs that look too clean (no failures, sizes bunched or identical, one kind of check); audit checklist; planted errors of both kinds, wrong entries and omissions, sealed by hash and scored by kind |
+| 6.2, 10.3 | `tools/verify_record.py` | The receiving side of a portable record: whether the log sent with it is the file that was scored, the scorer the same, and the record the same when rescored |
+| 5.1, Table 3 | `tools/reference_hours.py`, `kits/reference-hours-raters.md` | Reference hours from two raters' estimates (geometric mean within 1.5, otherwise a third rater); how to choose, admit and brief the raters |
+| 6.2, 6.5, 10.5 | `kits/trade-screen.md`, `tools/gate_leak.py`, `kits/checking-process.md`, `kits/process-vs-experience-study.md`, `tools/process_study.py` | Admitting people by a question of the trade; the checking process of Section 6.5 and what each step earns (Figure A4); the comparison of Section 10.5 and its analysis |
 | 5.8, App. E | `pilot/` | Desk pre-pilot of the thresholds (simulated logs, exact rates, rater noise), a 30-task bank, and the protocol, preregistration draft and consent form of the live pilot |
+| App. G2 | `pilot/` | The Prolific pre-pilot: the registered analysis `human_raters.py` as filed on OSF (hashes in `pilot/registered-SHA256.txt`), the conversion of the exports, Table G2, the comparison of the screening, and a synthetic export to run them on |
 | 5.1, 7.2 | `templates/` | Spreadsheet log, task card for a task bank, guarantor record |
+| 7.2 | `tools/guarantor_record.py`, `examples/guarantor-ledger.csv`, `examples/guarantor-expected.txt` | The guarantor's record from the ledger of products vouched for: how many, how many lived 6 and 12 months, failures by severity, the median life of those that ended, all as they stood on `--as-of`; a worked example and the lines it must print with `--as-of 2026-10-09` |
 | 3, 4, 6 to 13 | `kits/`, `tools/` | One kit or tool per section: names, tokens in reviews, matched-task study, degree share of postings, guarantor sign-off and product liveness, release checklist by risk, codebook and kappa, a one-day hiring test, pre-release security scan, scope statement. The map is `kits/README.md` |
 | 1, 2, 13 | `sources/` | Register of claims with archived copies, refreshed monthly by a workflow |
+| 11, Set B | `predictions/set_b.py` | Applies the frozen came-true and did-not rules of the nine Set B predictions written on an interval (F2, F3, F3b, F4a, F4b, F7, F12, F26, F34) to a study's estimates, with the Newcombe interval for a difference of two shares and the Mantel-Haenszel odds ratio for F7 |
+| 11.4, F27 | `kits/f27-sample.md`, `tools/freeze_sample.py`, `tools/liveness.py` | The F27 sample: a protocol with a default for each choice the registration leaves open, the draw by a key revealed only after the closed pool of candidates is registered (a public drand round), its SHA-256 registered on OSF with the Zenodo deposit, and liveness on each scoring date by F27's words (unreachable or not updated for 12 months; GitHub rate limits waited out, optional GITHUB_TOKEN) |
+| 3, 11 | `tools/name_race.py`, `tools/names-table-a2.txt` | The annual race of names: every candidate of Table A2 counted in OpenAlex (title and abstract) and Crossref (title), as frozen in `predictions/resolve/names-race.md` |
+| C2 to C4, 11 | `tools/paper_sync.py` | Checks the paper against this repository when the two sit side by side: the listings of Appendix C byte for byte, the worked example and its output, Tables 4 and A6 against `predictions/predictions.csv`, the counts of the two sets, every file the paper names and every figure it embeds; without the paper next to it, it says so |
+| 11.2 | `tools/power.py` | Power and sample size for comparing two pass shares: 1,500 per group give about 0.8 power for 5 points (F2, F3) |
 | 11, Table A6 | `predictions/` | The dated predictions (registered on OSF, DOI 10.17605/OSF.IO/VW6P9), resolution rules, files for resolving specific predictions, and the scorecard tools |
 | C3 | `brier.py` | Brier score over dated predictions. Byte for byte as printed in the paper |
+| App. D, App. F | `figures/` | The scripts that draw Figure A1 from `predictions/predictions.csv` and Figure A4 from the rules of `horizon.py` (they need matplotlib; nothing else in the repository does) |
 | | `tests/` | `python3 -m unittest discover -v` |
 
 Check the worked example yourself:
@@ -165,20 +188,26 @@ python3 horizon.py examples/c4-log.jsonl --as-of 2026-10-09
 
 **The prediction table is registered on OSF on 9 October 2026, DOI 10.17605/OSF.IO/VW6P9 (https://osf.io/vw6p9), and frozen.** Its probabilities were
 fixed on 9 October 2026 as the median of three blind model forecasts, adopted by the author (predictions/changelog-v1-v2.md); the history of every change stays in git. After registration the
-table is never edited: a new prediction is registered separately and carries its own date.
+table is never edited: a new prediction is registered separately and carries its own date. `predictions/registered-SHA256.txt` is the manifest filed with the registration, and
+`python3 -m unittest tests.test_registered` shows that every registered file here is still byte for byte the one
+registered.
 
 Copy `predictions/outcomes-template.csv` to `outcomes-2027.csv`, set each status to `came_true`, `did_not`,
-`not_yet_due` or `unresolved`, write the evidence, and run
+`not_yet_due`, `unresolved` or, for a Set B prediction whose protocol was not registered by 30 June 2027,
+`not_conducted`, write the evidence, and run
 
 ```sh
 python3 predictions/score.py outcomes-2027.csv
 ```
 
 The probabilities are read from the frozen table, never from your file. Every prediction must appear; an
-unresolved one is never counted as a success. A forecast at 35% that misses says little on its own: the Brier
+unresolved one is never counted as a success. A prediction not conducted is listed as a failure of the testing
+programme and the Brier score is printed twice, without it and with it scored as wrong (Section 11.2), so a study
+that is never run cannot drop out of the count. A forecast at 35% that misses says little on its own: the Brier
 score over the set is what tells a calibrated forecaster from a lucky one (always saying 0.5 gives 0.250).
 `python3 predictions/skill.py outcomes-2027.csv` adds the rest of Section 11.4: scores by set and by family of
-linked predictions, the share resolved, a worst bound that counts every overdue unresolved prediction as wrong,
+linked predictions, the share resolved, a worst bound that counts every overdue unresolved prediction and every
+prediction not conducted as wrong,
 and the skill score against a flat 0.5, the pooled model forecasters and market prices where they exist. The rules
 are in `predictions/resolution-rules.md`; `predictions/changelog-v1-v2.md` says what changed in the table and why.
 

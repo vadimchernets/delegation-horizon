@@ -1,0 +1,10 @@
+guarantor,domain,product,maker,vouched_on,status,ended_on,severity,checked,audience,failed_on
+G01,small-business tools,Payroll export checker,M01,2025-09-01,live,,none,hidden tests on 3 months of payroll,a bookkeepers' group,
+G01,small-business tools,Invoice matcher,M02,2025-11-15,retired,2026-07-01,minor,expert review of 200 matches,a bookkeepers' group,
+G01,small-business tools,Clinic rota planner,M03,2026-01-10,live,,none,real use for 4 weeks by one clinic,two clinics,
+G01,small-business tools,Grant budget tracker,M04,2026-02-01,withdrawn,2026-03-15,harmful,expert review of the formulas,three charities,
+G01,small-business tools,Lease clause finder,M05,2026-03-20,live,,minor,hidden tests on 40 leases,a landlords' forum,2026-06-10
+G01,small-business tools,Shop VAT summary,M06,2026-05-05,live,,none,hidden tests on 4 quarters,a bookkeepers' group,
+G01,small-business tools,Volunteer roster bot,M07,2026-06-30,retired,2026-09-30,none,real use for 2 weeks,one charity,
+G01,small-business tools,Tender checklist,M08,2026-08-15,live,,none,expert review,a builders' group,
+G01,small-business tools,Donation receipts,M09,2026-09-25,live,,none,hidden tests on 50 receipts,three charities,

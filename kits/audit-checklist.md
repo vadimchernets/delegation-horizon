@@ -4,7 +4,7 @@
 *For: organisations, auditors and guarantors who need to trust someone else's record.*
 
 Pick a random share of accepted pieces (for example one in five; `audit_sample.py` draws it with a
-seed you can publish) and go through this list for each one. Run `tools/too_clean.py` on the whole log
+seed taken from the closed log and a salt the second checker picks, printed so anyone can replay it) and go through this list for each one. Run `tools/too_clean.py` on the whole log
 first: it tells you where to look.
 
 ## A. The check itself (route: easy checks)

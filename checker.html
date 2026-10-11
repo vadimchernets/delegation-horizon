@@ -63,74 +63,137 @@ function makeScorer(R) {
   var KEYS = new Set(R.keys), OPT = new Set(R.optional);
   var TRUE = new Set(["true", "yes", "y", "1"]), FALSE = new Set(["false", "no", "n", "0"]);
   var NUM = {reference_hours: 1, attention_minutes: 1, planted_errors: 1, planted_missed: 1};
-  var FLAGS = new Set(["agent_saw_check", "passed", "irreversible", "outside_help"]);
+  var FLAGS = new Set(["agent_saw_check", "passed", "irreversible", "outside_help", "revoked"]);
 
   function fail(msg) { var e = new Error(msg); e.logError = true; throw e; }
   function day(s, n) {
-    if (!/^\d{4}-\d{2}-\d{2}$/.test(String(s))) fail("line " + n + ": date " + JSON.stringify(s) + " is not YYYY-MM-DD");
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(String(s))) fail(n + ": date " + JSON.stringify(s) + " is not YYYY-MM-DD");
     var t = Date.UTC(+s.slice(0, 4), +s.slice(5, 7) - 1, +s.slice(8, 10));
-    if (isNaN(t) || new Date(t).toISOString().slice(0, 10) !== s) fail("line " + n + ": " + s + " is not a real date");
+    if (isNaN(t) || new Date(t).toISOString().slice(0, 10) !== s) fail(n + ": " + s + " is not a real date");
     return Math.round(t / 86400000);
   }
-  function splitCsvLine(line) {
-    var out = [], cur = "", q = false;
-    for (var i = 0; i < line.length; i++) {
-      var c = line[i];
-      if (q) { if (c === '"' && line[i + 1] === '"') { cur += '"'; i++; } else if (c === '"') q = false; else cur += c; }
-      else if (c === '"') q = true; else if (c === ",") { out.push(cur); cur = ""; } else cur += c;
+  function csvRecords(text, sep, first) {
+    /* Records as Python's csv module reads them: a quote opens a cell only at its start, a quoted cell may hold the
+       separator, quotes and line breaks, and a record ends at \r\n, \n or \r. Each record keeps the number of the
+       physical line it ends on, counted from first, which is what record_card.py reports as its row. */
+    var recs = [], row = [], cur = "", q = false, atStart = true, line = first;
+    for (var i = 0; i < text.length; i++) {
+      var c = text[i];
+      if (q) {
+        if (c === '"') { if (text[i + 1] === '"') { cur += '"'; i++; } else q = false; }
+        else { if (c === "\n" || (c === "\r" && text[i + 1] !== "\n")) line++; cur += c; }
+      } else if (c === '"' && atStart) { q = true; atStart = false; }
+      else if (c === sep) { row.push(cur); cur = ""; atStart = true; }
+      else if (c === "\r" || c === "\n") {
+        if (c === "\r" && text[i + 1] === "\n") i++;
+        row.push(cur); recs.push({cells: row, line: line}); row = []; cur = ""; atStart = true; line++;
+      } else { cur += c; atStart = false; }
     }
-    out.push(cur);
-    return out;
+    if (cur !== "" || row.length) { row.push(cur); recs.push({cells: row, line: line}); }
+    return recs;
   }
+  function spreadsheetDate(s) {
+    /* 2026-09-14 stays; 14.09.2026 (day first, as European spreadsheets write it) becomes 2026-09-14; else null. */
+    var m = /^(\d{1,2})\.(\d{1,2})\.(\d{4})$/.exec(s);
+    if (m) s = m[3] + "-" + ("0" + m[2]).slice(-2) + "-" + ("0" + m[1]).slice(-2);
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(s)) return null;
+    var t = Date.UTC(+s.slice(0, 4), +s.slice(5, 7) - 1, +s.slice(8, 10));
+    return isNaN(t) || new Date(t).toISOString().slice(0, 10) !== s ? null : s;
+  }
+  function semicolonNumber(s) {
+    /* In a file saved with semicolons, 8,5 is eight and a half and 1.030,5 a thousand and thirty and a half; any
+       other dot is a decimal point (8.5, 0.125). 1.030 or 8.125 with no comma is a thousand and thirty in a German
+       spreadsheet and one point zero three in a Swiss one: null, refused and never guessed, as record_card.py does. */
+    if (/^[1-9]\d{0,2}(\.\d{3})+,\d+$/.test(s)) return s.replace(/\./g, "").replace(",", ".");
+    if (/^[1-9]\d{0,2}(\.\d{3})+$/.test(s)) return null;
+    return s.replace(",", ".");
+  }
+  var THOUSANDS = "must be written without a dot between thousands (1030) or with a decimal comma (1,03)";
+  var PLAIN_NUMBER = /^[+-]?(?:[0-9]+(?:\.[0-9]*)?|\.[0-9]+)(?:[eE][+-]?[0-9]+)?$/;   /* as record_card.py: no 0x10 */
   function csvToObjects(text) {
-    var lines = text.replace(/^﻿/, "").split(/\r?\n/), head = splitCsvLine(lines[0]).map(function (h) { return h.trim(); });
-    var rows = [];
-    for (var i = 1; i < lines.length; i++) {
-      if (!lines[i].trim()) continue;
-      var cells = splitCsvLine(lines[i]), row = {}, n = i + 1;
+    /* The columns of templates/work-log.csv. A file saved with semicolons (spreadsheets set to a European
+       language) is read with semicolons, decimal commas and dots between thousands, exactly as record_card.py
+       reads it. Blank lines before the header are skipped. */
+    var lead = /^(?:[ \t]*(?:\r\n|\r|\n))*/.exec(text)[0], first = 1 + (lead.match(/\r\n|\r|\n/g) || []).length;
+    var body = text.slice(lead.length), header = body.split(/\r\n|\r|\n/)[0];
+    var semi = (header.match(/;/g) || []).length > (header.match(/,/g) || []).length, sep = semi ? ";" : ",";
+    var recs = csvRecords(body, sep, first);
+    if (!recs.length) fail("the log is empty");
+    var head = recs[0].cells.map(function (h) { return h.trim(); });
+    var rows = [], lines = [];
+    recs.slice(1).forEach(function (rec) {
+      var cells = rec.cells, row = {}, n = rec.line;
       head.forEach(function (h, j) { if (h) row[h] = (cells[j] || "").trim(); });
-      if (!Object.keys(row).some(function (k) { return row[k]; })) continue;
-      if (!row.started) delete row.started;
+      if (!Object.keys(row).some(function (k) { return row[k]; })) return;
+      OPT.forEach(function (k) { if (k in row && !row[k]) delete row[k]; });   /* an empty optional cell is no field */
+      ["started", "date"].forEach(function (k) {
+        if (!(k in row)) return;
+        var iso = spreadsheetDate(row[k]);
+        if (iso === null) fail("row " + n + ": " + k + " must be a date written YYYY-MM-DD (or DD.MM.YYYY), got " + JSON.stringify(row[k]) +
+          "; set the column to text in the spreadsheet and type the date as 2026-09-14");
+        row[k] = iso;
+      });
+      if ("rater_hours" in row) {
+        var cell = row.rater_hours, parts = semi ? cell.split(";") : cell.replace(/,/g, ";").split(";");
+        row.rater_hours = parts.filter(function (x) { return x.trim(); }).map(function (x) {
+          var t = semi ? semicolonNumber(x.trim()) : x.trim();
+          if (t === null) fail("row " + n + ": rater_hours " + THOUSANDS + ", got " + JSON.stringify(cell));
+          var v = PLAIN_NUMBER.test(t) ? Number(t) : NaN;
+          if (!isFinite(v)) fail("row " + n + ": rater_hours must be numbers separated by ';', got " + JSON.stringify(cell));
+          return v;
+        });
+      }
       Object.keys(NUM).forEach(function (k) {
-        if (k in row) { var v = Number(row[k]); if (row[k] === "" || isNaN(v)) fail("row " + n + ": " + k + " must be a number, got " + JSON.stringify(row[k])); row[k] = v; }
+        if (k in row) {
+          var t = semi ? semicolonNumber(row[k]) : row[k];
+          if (t === null) fail("row " + n + ": " + k + " " + THOUSANDS + ", got " + JSON.stringify(row[k]));
+          var v = PLAIN_NUMBER.test(t) ? Number(t) : NaN;
+          if (row[k] === "" || !isFinite(v)) fail("row " + n + ": " + k + " must be a number, got " + JSON.stringify(row[k]));
+          row[k] = v;
+        }
       });
       FLAGS.forEach(function (k) {
         if (k in row) { var w = row[k].toLowerCase(); if (!TRUE.has(w) && !FALSE.has(w)) fail("row " + n + ": " + k + " must be yes or no, got " + JSON.stringify(row[k])); row[k] = TRUE.has(w); }
       });
-      rows.push(row);
-    }
-    return rows;
+      rows.push(row); lines.push("row " + n);
+    });
+    return {rows: rows, lines: lines};
   }
   function parse(text) {
-    var trimmed = text.replace(/^﻿/, "").trim();
-    if (!trimmed) fail("the log is empty");
-    if (trimmed[0] !== "{") return csvToObjects(trimmed);
-    var rows = [];
-    trimmed.split(/\r?\n/).forEach(function (line, i) {
+    /* JSON Lines are split as Python reads a text file (\r\n, \n or \r) and keep their physical line numbers. */
+    var clean = text.replace(/^﻿/, "");
+    if (!clean.trim()) fail("the log is empty");
+    if (clean.trim()[0] !== "{") return csvToObjects(clean);
+    var rows = [], lines = [];
+    clean.split(/\r\n|\r|\n/).forEach(function (line, i) {
       if (!line.trim()) return;
       try { rows.push(JSON.parse(line)); } catch (e) { fail("line " + (i + 1) + ": not valid JSON"); }
+      lines.push("line " + (i + 1));
     });
-    return rows;
+    return {rows: rows, lines: lines};
   }
-  function validate(rows, undated) {
+  function validate(parsed, undated) {
     undated = undated || {n: 0};
-    return rows.map(function (r, i) {
-      var n = i + 1, have = Object.keys(r);
+    return parsed.rows.map(function (r, i) {
+      var n = parsed.lines[i], have = Object.keys(r);
       var unknown = have.filter(function (k) { return !KEYS.has(k) && !OPT.has(k); }).sort();
       var missing = R.keys.filter(function (k) { return !(k in r); }).sort();
-      if (unknown.length || missing.length) fail("line " + n + ": unknown " + JSON.stringify(unknown) + ", missing " + JSON.stringify(missing));
-      if (!CHECKS.has(r.check) || !MODES.has(r.mode)) fail("line " + n + ": check or mode is not one of the allowed values");
-      if (!(Number(r.reference_hours) > 0) || !(Number(r.attention_minutes) >= 0)) fail("line " + n + ": reference hours must be positive, minutes not negative");
+      if (unknown.length || missing.length) fail(n + ": unknown " + JSON.stringify(unknown) + ", missing " + JSON.stringify(missing));
+      if (!CHECKS.has(r.check) || !MODES.has(r.mode)) fail(n + ": check or mode is not one of the allowed values");
+      if (!(Number(r.reference_hours) > 0) || !(Number(r.attention_minutes) >= 0)) fail(n + ": reference hours must be positive, minutes not negative");
       var pe = Math.trunc(Number(r.planted_errors)), pm = Math.trunc(Number(r.planted_missed));
-      if (!(pm >= 0 && pm <= pe)) fail("line " + n + ": planted_missed must lie between 0 and planted_errors");
+      if (!(pm >= 0 && pm <= pe)) fail(n + ": planted_missed must lie between 0 and planted_errors");
       if (typeof r.outside_help !== "boolean" || ("revoked" in r && typeof r.revoked !== "boolean"))
-        fail("line " + n + ": outside_help and revoked must be true or false");
-      if (["none", "passed", "failed"].indexOf("audit" in r ? r.audit : "none") < 0) fail("line " + n + ": audit must be none, passed or failed");
+        fail(n + ": outside_help and revoked must be true or false");
+      ["agent_saw_check", "irreversible", "passed"].forEach(function (k) {   /* "no" in quotes would read as true */
+        if (typeof r[k] !== "boolean") fail(n + ": " + k + " must be true or false, without quotes, got " + JSON.stringify(r[k]));
+      });
+      if (["none", "passed", "failed"].indexOf("audit" in r ? r.audit : "none") < 0) fail(n + ": audit must be none, passed or failed");
       if ("rater_hours" in r && (!Array.isArray(r.rater_hours) || r.rater_hours.length < 2 || Math.min.apply(null, r.rater_hours.map(Number)) <= 0))
-        fail("line " + n + ": rater_hours needs two or more positive estimates");
+        fail(n + ": rater_hours needs two or more positive estimates");
       if (!("started" in r)) undated.n++;
       var o = Object.assign({}, r); o.day = day(r.date, n);
-      if ("started" in r && day(r.started, n) > o.day) fail("line " + n + ": started must not be later than date");
+      if ("started" in r && day(r.started, n) > o.day) fail(n + ": started must not be later than date");
       return o;
     });
   }
@@ -172,13 +235,41 @@ function makeScorer(R) {
     var a = xs.slice().sort(function (x, y) { return x - y; }), m = Math.floor(a.length / 2);
     return a.length % 2 ? a[m] : (a[m - 1] + a[m]) / 2;
   }
-  function gain(pieces) {
-    var done = 0, spent = 0;
-    pieces.forEach(function (r) {
-      if (verified(r) && !r.outside_help) done += Number(r.reference_hours);
-      spent += Number(r.attention_minutes);
+  function pysum(xs) {
+    /* math.fsum as horizon.py adds: Shewchuk's exact partials, correctly rounded, the same on every Python. */
+    var partials = [];
+    xs.forEach(function (x) {
+      var i = 0;
+      for (var j = 0; j < partials.length; j++) {
+        var y = partials[j];
+        if (Math.abs(x) < Math.abs(y)) { var t0 = x; x = y; y = t0; }
+        var hi = x + y, lo = y - (hi - x);
+        if (lo) partials[i++] = lo;
+        x = hi;
+      }
+      partials.length = i;
+      partials.push(x);
     });
-    spent /= 60;
+    var n = partials.length;
+    if (!n) return 0;
+    var top = partials[--n], low = 0;
+    while (n > 0) {
+      var a = top, b = partials[--n];
+      top = a + b;
+      var br = top - a;
+      low = b - br;
+      if (low) break;
+    }
+    if (n > 0 && ((low < 0 && partials[n - 1] < 0) || (low > 0 && partials[n - 1] > 0))) {
+      var y2 = low * 2, x2 = top + y2;
+      if (y2 === x2 - top) top = x2;
+    }
+    return top;
+  }
+  function gain(pieces) {
+    var done = pysum(pieces.filter(function (r) { return verified(r) && !r.outside_help; })
+                           .map(function (r) { return Number(r.reference_hours); }));
+    var spent = pysum(pieces.map(function (r) { return Number(r.attention_minutes); })) / 60;
     return spent === 0 ? null : done / spent;
   }
   function pyFixed(x, d) {
@@ -207,7 +298,16 @@ function makeScorer(R) {
     var quarter = y + "-Q" + (Math.floor((m - 1) / 3) + 1);
     var recentStart = asOf - R.gain_window;
     var out = [];
-    Object.keys(groups).sort().forEach(function (k) {
+    function byCodePoint(a, b) {
+      var x = Array.from(a), y = Array.from(b);
+      for (var i = 0; i < Math.min(x.length, y.length); i++)
+        if (x[i] !== y[i]) return x[i].codePointAt(0) - y[i].codePointAt(0);
+      return x.length - y.length;
+    }
+    Object.keys(groups).sort(function (a, b) {                  /* as Python sorts (person, domain) */
+      var p = JSON.parse(a), q = JSON.parse(b);
+      return byCodePoint(p[0], q[0]) || byCodePoint(p[1], q[1]);
+    }).forEach(function (k) {
       var pd = JSON.parse(k), pieces = groups[k];
       var recent = pieces.filter(function (r) { return r.day > recentStart; });
       var g = gain(recent), shown = g === null ? "n/a" : pyFixed(g, 2);
@@ -227,7 +327,7 @@ function makeScorer(R) {
       var sizes = recent.filter(function (r) { return r.passed; }).map(function (r) { return Number(r.reference_hours); });
       var med = sizes.length ? pyFixed(median(sizes), 1) + " h" : "n/a";
       var spread = pieces.some(function (r) {
-        if (!("rater_hours" in r)) return false;
+        if (!("rater_hours" in r) || r.rater_hours.length !== 2) return false;   /* with three, the median decided */
         var h = r.rater_hours.map(Number);
         return Math.max.apply(null, h) / Math.min.apply(null, h) > R.rater_spread;
       });
@@ -236,7 +336,13 @@ function makeScorer(R) {
     });
     return out;
   }
-  return {score: score, parse: parse, validate: validate};
+  function decode(bytes) {
+    /* The file's bytes as text, as record_card.py reads them: UTF-8 with or without a BOM, otherwise Windows-1252,
+       the code page in which spreadsheets on Windows save CSV. */
+    try { return new TextDecoder("utf-8", {fatal: true}).decode(bytes).replace(/^\uFEFF/, ""); }
+    catch (e) { return new TextDecoder("windows-1252").decode(bytes); }
+  }
+  return {score: score, parse: parse, validate: validate, decode: decode};
 }
 if (typeof module !== "undefined") module.exports = makeScorer;
 </script>
@@ -246,10 +352,13 @@ if (typeof module !== "undefined") module.exports = makeScorer;
   if (typeof document === "undefined") return;
   var scorer = makeScorer(JSON.parse(document.getElementById("rules").textContent));
   var asof = document.getElementById("asof"), out = document.getElementById("out"), text = document.getElementById("text");
-  asof.value = new Date().toISOString().slice(0, 10);
+  var now = new Date();                                         /* today where the reader is, as horizon.py takes it */
+  asof.value = now.getFullYear() + "-" + ("0" + (now.getMonth() + 1)).slice(-2) + "-" + ("0" + now.getDate()).slice(-2);
   document.getElementById("file").addEventListener("change", function (e) {
     var f = e.target.files[0]; if (!f) return;
-    var rd = new FileReader(); rd.onload = function () { text.value = rd.result; run(); }; rd.readAsText(f);
+    var rd = new FileReader();
+    rd.onload = function () { text.value = scorer.decode(new Uint8Array(rd.result)); run(); };
+    rd.readAsArrayBuffer(f);
   });
   document.getElementById("run").addEventListener("click", run);
   function run() {

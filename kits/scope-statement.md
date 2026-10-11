@@ -18,5 +18,5 @@
 > **How to check it.** Ask for the work log and the acceptance cards behind it. The log can be scored
 > with the open scorer at github.com/vadimchernets/delegation-horizon (`horizon.py` or `checker.html`).
 >
-> **Status.** The rung thresholds are provisional, tested on worked examples and awaiting the human
-> pilot. Use the record as one input among several.
+> **Status.** The rung thresholds are provisional: desk-tested by simulation and with model raters
+> (Appendix E of the paper), and awaiting the human pilot. Use the record as one input among several.

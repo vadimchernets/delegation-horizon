@@ -2,13 +2,14 @@
 """too_clean.py: flag work logs that look too clean to be true, so an auditor knows where to look first.
 
 Teaches: Table 3 lists ways to game the measure. Several leave a statistical trace in the log itself:
-no failure at all, sizes bunched just above a rung threshold, attention minutes that never vary,
-upper-rung pieces with no planted errors, or checks the scorer does not count. This prints, per
-person and domain, which traces are present.
+no failure at all, sizes bunched just above a rung threshold, sizes or attention minutes that never
+vary, every piece checked by one kind of check, upper-rung pieces with no planted errors, or checks
+the scorer does not count. This prints, per person and domain, which traces are present.
 Limits: a flag is a reason to audit, never a verdict. Careful people do have clean months. The
 thresholds below are starting points, stated here so that anyone can change them in the open.
 Usage:
   python3 tools/too_clean.py work-log.jsonl [--as-of 2026-10-09] [--min-pieces 10]
+  python3 tools/too_clean.py my-log.csv                   (the spreadsheet template works too)
 Exit code 0 when nothing is flagged, 1 when something is (handy in an audit script).
 Licence: MIT
 """
@@ -22,6 +23,7 @@ from collections import defaultdict
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, ROOT)
 import horizon  # noqa: E402
+import record_card  # noqa: E402  (reads a JSON Lines or a spreadsheet log through horizon.load)
 
 JUST_ABOVE = 0.10          # a size within 10% above a rung threshold counts as "just above"
 JUST_ABOVE_SHARE = 0.5     # flag when at least half of the pieces sit just above a threshold
@@ -34,7 +36,7 @@ def flags(pieces, min_pieces):
     n = len(pieces)
     if n < min_pieces:
         return out
-    if all(horizon.verified(r) for r in pieces):
+    if all(r["passed"] for r in pieces):                # a pass under a weak check is still not a failure
         out.append(f"no failed, rejected or abandoned piece among {n}")
     thresholds = [hours for _, hours, *_ in horizon.RUNGS]
     near = sum(any(t <= float(r["reference_hours"]) < t * (1 + JUST_ABOVE) for t in thresholds) for r in pieces)
@@ -44,6 +46,12 @@ def flags(pieces, min_pieces):
     mean = statistics.mean(minutes)
     if mean > 0 and statistics.pstdev(minutes) / mean < FLAT_CV:
         out.append("attention minutes barely vary between pieces")
+    sizes = [float(r["reference_hours"]) for r in pieces]
+    if statistics.pstdev(sizes) / statistics.mean(sizes) < FLAT_CV:
+        out.append("reference hours barely vary between pieces")
+    kinds = {r["check"] for r in pieces}
+    if len(kinds) == 1:
+        out.append(f"every piece was checked by one kind of check ({kinds.pop()})")
     big = [r for r in pieces if float(r["reference_hours"]) >= horizon.PLANTED_FROM]
     if big and not any(int(r["planted_errors"]) > 0 for r in big):
         out.append(f"{len(big)} piece(s) of Week size or more, none with a planted error")
@@ -58,12 +66,12 @@ def flags(pieces, min_pieces):
 def main():
     ap = argparse.ArgumentParser(description="Flag work logs that look too clean.")
     ap.add_argument("log")
-    ap.add_argument("--as-of", default=dt.date.today().isoformat())
+    ap.add_argument("--as-of", type=record_card.iso_date, default=dt.date.today())
     ap.add_argument("--min-pieces", type=int, default=10, help="skip people with fewer pieces in the year")
     args = ap.parse_args()
-    as_of = dt.date.fromisoformat(args.as_of)
+    as_of = args.as_of
     groups = defaultdict(list)
-    for r in horizon.load(args.log):
+    for r in record_card.load_any(args.log):
         if as_of - dt.timedelta(days=365) < r["date"] <= as_of:
             groups[(r["person"], r["domain"])].append(r)
     found = False

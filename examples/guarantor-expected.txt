@@ -1,0 +1,2 @@
+G01: small-business tools . 9 vouched . live at 6 months 4/5, at 12 months 1/1 . failures 2 minor, 1 harmful, 0 severe . 2026-Q4
+  status: 6 live, 2 retired, 1 withdrawn; median life of the products that ended: 92 days

@@ -20,7 +20,8 @@ A longer version of the record is in `templates/guarantor-record.md`.*
 | My signature line: "I vouch for this release of this product to the extent stated above." | |
 
 ## The guarantor's own record
-Keep one line per product you vouched for in a CSV:
-`product, version, signed, still_alive_on, incidents, severity_max, withdrawn`.
-`tools/liveness.py` fills `still_alive_on` for a list of products. The count of products, how long they
-lived and how many failed, weighted by severity, is the guarantor's track record (Section 7.2).
+Keep one line per product you vouched for in the CSV of `templates/guarantor-record.md` (columns
+`guarantor`, `domain`, `product`, `maker`, `vouched_on`, `status`, `ended_on`, `severity`).
+`tools/liveness.py` checks which products still answer, and `tools/guarantor_record.py` turns the CSV into
+the guarantor's track record (Section 7.2): how many products, how many lived 6 and 12 months, the failures
+by severity and the median life of those that ended.

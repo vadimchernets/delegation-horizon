@@ -26,3 +26,4 @@ jobs:
         run: |
           python horizon.py examples/c4-log.jsonl --as-of 2026-10-09 | diff - examples/c4-expected.txt
           python horizon.py examples/team-log.jsonl --as-of 2026-10-09 | diff - examples/team-expected.txt
+          python tools/guarantor_record.py examples/guarantor-ledger.csv --as-of 2026-10-09 | diff - examples/guarantor-expected.txt

@@ -2,6 +2,8 @@
 import csv
 import math
 import os
+import re
+import subprocess
 import sys
 import tempfile
 import unittest
@@ -9,8 +11,18 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "pilot"))
+import table_g2  # noqa: E402
+import prolific_to_long as ptl  # noqa: E402
 import rater_agreement as ra  # noqa: E402
+import screen_compare  # noqa: E402
 import simulate_rules as sim  # noqa: E402
+
+DEMO = ROOT / "pilot" / "demo"
+SOURCES = [f"bookkeeping={DEMO / 'prolific-demo-bookkeeping.jsonl'}", f"webtools={DEMO / 'prolific-demo-webtools.jsonl'}"]
+
+
+def run(*args):
+    return subprocess.run([sys.executable, *map(str, args)], capture_output=True, text=True, cwd=ROOT, timeout=120)
 
 
 class Binomial(unittest.TestCase):
@@ -89,6 +101,84 @@ class Raters(unittest.TestCase):
             gm = next(x for x in rows if x["measure"] == "within_x1.5_of_measured"
                       and x["who"] == "geometric mean of raters")
             self.assertEqual(gm["value"], 1.0)
+
+
+class ProlificPipeline(unittest.TestCase):
+    """Appendix G2: export, registered analysis, Table G2 and the screening comparison, on the synthetic demo."""
+
+    def long_csv(self, d, *extra):
+        out = Path(d) / "long.csv"
+        r = run("pilot/prolific_to_long.py", out, *SOURCES, *extra)
+        self.assertEqual(r.returncode, 0, r.stderr)
+        return out, r.stdout
+
+    def test_numbers_are_read_as_written(self):
+        cases = {"8": 8.0, "2.5": 2.5, ".5": 0.5, "1,200": 1200.0, "12,000.5": 12000.5, "1,5": 1.5,
+                 "about 6 hours": 6.0, "6h": 6.0, "0": 0.0}
+        for text, value in cases.items():
+            with self.subTest(text=text):
+                self.assertEqual(ptl.number(text), value)
+        for text in ("8-12", "8 to 12", "1 200", "3 hrs 30 min", "", "a day"):   # not one number: dropped as registered
+            with self.subTest(text=text):
+                self.assertIsNone(ptl.number(text))
+
+    def test_report_lists_every_answer_that_is_not_a_plain_number(self):
+        with tempfile.TemporaryDirectory() as d:
+            out, stdout = self.long_csv(d, "--report")
+            self.assertIn("5 answers were not a plain number", stdout)
+            self.assertIn("'1,200' minutes -> 20 hours", stdout)
+            self.assertIn("'8-12' hours -> kept as text: dropped by human_raters.py", stdout)
+            with open(out, encoding="utf-8") as fh:
+                rows = list(csv.DictReader(fh))
+            self.assertEqual(len({(r["domain"], r["rater"]) for r in rows}), 26)
+
+    def test_relabel_leaves_no_hash_to_recompute(self):
+        with tempfile.TemporaryDirectory() as d:
+            out, _ = self.long_csv(d, "--relabel")
+            with open(out, encoding="utf-8") as fh:
+                raters = {r["rater"] for r in csv.DictReader(fh)}
+            self.assertEqual(raters, {f"R{i:03d}" for i in range(1, 27)})
+
+    def test_table_g3_is_the_registered_scripts_numbers(self):
+        with tempfile.TemporaryDirectory() as d:
+            out, _ = self.long_csv(d)
+            printed = run("pilot/human_raters.py", out, "pilot/task-bank-v0.csv").stdout
+            rows = {r["domain"]: r for r in table_g2.domain_rows(out, ROOT / "pilot" / "task-bank-v0.csv",
+                                                                   ROOT / "pilot" / "results" / "model-ratings.csv")}
+        blocks = re.split(r"\n== ", printed)[1:]
+        self.assertEqual(len(blocks), 2)
+        for block in blocks:
+            domain = block.split(":", 1)[0]
+            r = rows[domain]
+            with self.subTest(domain=domain):
+                kept, excl, pairs = map(int, re.search(r"(\d+) raters kept, (\d+) excluded, (\d+) rater pairs", block).groups())
+                self.assertEqual((kept, excl, pairs), (r["kept"], r["failed_attention"] + r["failed_competency"], r["pairs"]))
+                self.assertEqual(re.search(r"pairs within x1.5: ([\d.]+)", block).group(1), f"{r['share']:.3f}")
+                self.assertEqual(re.search(r"level: ([\d.]+)", block).group(1), f"{r['calibrated']:.3f}")
+                self.assertEqual(re.search(r"log hours, \d+ complete raters: ([\d.]+)", block).group(1), f"{r['icc']:.3f}")
+                self.assertEqual(re.search(r"test-retest within x1.5: ([\d.]+)", block).group(1), f"{r['retest']:.3f}")
+                on_rung = sum(1 for line in block.splitlines()
+                              if re.match(r"\w\w\d\d ", line) and line.split()[2] == line.split()[3])
+                self.assertEqual(on_rung, r["on_rung"])
+
+    def test_model_raters_on_the_twenty_tasks_give_the_papers_56_percent(self):
+        models = ROOT / "pilot" / "results" / "model-ratings.csv"
+        self.assertEqual(table_g2.model_share(models, "BK"), (28, 60))
+        self.assertEqual(table_g2.model_share(models, "WT"), (39, 60))
+        self.assertEqual(round(67 / 120 * 100), 56)
+
+    def test_screen_compare(self):
+        low, high = screen_compare.exact(11, 60)           # the bookkeeping screen of Appendix G2
+        self.assertEqual((round(low * 100, 1), round(high * 100, 1)), (9.5, 30.4))
+        self.assertAlmostEqual(screen_compare.tail(11, 60, low), 0.025, places=9)       # each end leaves 2.5%
+        self.assertAlmostEqual(1 - screen_compare.tail(12, 60, high), 0.025, places=9)
+        with tempfile.TemporaryDirectory() as d:
+            out, _ = self.long_csv(d)
+            r = run("pilot/screen_compare.py", out, "--reps", "200")
+        self.assertEqual(r.returncode, 0, r.stderr)
+        self.assertIn("not registered", r.stdout)
+        self.assertIn("== bookkeeping: 3 of 13 answered the question of the trade wrongly", r.stdout)
+        self.assertIn("Week tasks (BK08, BK09, BK10)", r.stdout)
 
 
 if __name__ == "__main__":

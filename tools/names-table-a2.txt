@@ -1,0 +1,79 @@
+# Every candidate name of Table A2 of the paper (both parts), as named there on 9 October 2026, one per line.
+# The annual race of names (predictions/resolve/names-race.md) counts these each year:
+#   python3 tools/name_race.py --names tools/names-table-a2.txt --from 2025 --to 2027 --out names-2027.csv
+# Explanatory words in brackets in the table are left out; alternative names given in brackets are kept, and a
+# name listed twice (Builder, Domain Orchestrator) is counted once. A single common word (principal, Writer, setter)
+# counts every paper that uses the word: read a sample of the hits before drawing a conclusion.
+# Part 1: names in use
+builder
+Full Stack Builder
+vibe coding
+vibe coder
+AI fluency
+agent literacy
+agentic engineer
+agent boss
+agent manager
+AI Agent Owner
+AI Agent Supervisor
+AI orchestrator
+AI Operator
+AI steward
+AI work architect
+product creator
+Product Principal
+Principal Agentic Context Engineer
+AI Product Builder
+Agentic Product Builder
+Chartered Financial Intelligence Architect
+principal
+delegation horizon
+uplift
+speedup
+autonomy 1 to 5
+H1 to H5
+supervisory capacity
+crossing time
+guarantor
+finisher
+distribution engineer
+GTM engineer
+tokenmaxxing
+citizen developer
+end-user software engineering
+Code Runner
+Adaptor
+Writer
+# Part 2: names proposed in the study, plain descriptions and variants considered
+acceptance literacy
+agentwright
+domain orchestrator
+legal orchestrator
+fintech orchestrator
+setter-acceptor
+agent director
+Agent-Directed Product Creator
+Agentic Work Steward
+Agentic Work Producer
+Outcome Author
+Outcome Architect
+agent conductor
+Specifier
+Verifier
+setter
+acceptor
+coordinator
+loop owner
+verified delegation horizon
+personal delegation horizon
+human delegation horizon
+amplification gain
+credential crossover point
+Skill Inversion Point
+Background Neutrality Point
+expertise crossover point
+credential decoupling
+co-signer
+trust broker
+distribution principal
+token seniority

@@ -1,13 +1,13 @@
 cff-version: 1.2.0
 message: "If you use this code or the measure, please cite the paper it accompanies."
 title: "Delegation horizon: the measurement instrument of 'After the Programmer Divide'"
-version: 1.0.0
-date-released: 2026-10-09
+version: 1.1.0
+date-released: 2026-10-11
 license: MIT
 identifiers:
   - type: doi
     value: "10.5281/zenodo.23267444"
-    description: "This code, archived on Zenodo (release v1.0.0)"
+    description: "This code, archived on Zenodo: concept DOI of all releases (this is release v1.1.0)"
 repository-code: "https://github.com/vadimchernets/delegation-horizon"
 keywords:
   - verified delegation horizon

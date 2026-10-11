@@ -17,12 +17,23 @@ that failed: a record without its failures says nothing.
 |---|---|---|---|---|---|---|---|---|---|
 | 1 | | | | | | live / retired / withdrawn | | | |
 
+Kept as a spreadsheet, the table above becomes a CSV with one row per product and the columns `guarantor`,
+`domain`, `product`, `maker`, `vouched_on`, `status` (live, retired or withdrawn), `ended_on` (empty while live) and
+`severity` (none, minor, harmful or severe); further columns, such as what was checked, the audience and what the
+guarantor did, are kept as notes. `examples/guarantor-ledger.csv` is a worked example.
+
 ## Summary (recompute at every update)
+
+`python3 tools/guarantor_record.py ledger.csv --as-of 2026-12-31` (the worked example: `examples/guarantor-ledger.csv
+--as-of 2026-10-09`) computes the summary below from that CSV, per
+guarantor and domain; `--weights minor=1,harmful=3,severe=10` adds one weighted number for the failures, with weights
+you state. "Still live after 6 months" counts, among the products vouched for at least 182 days before the date,
+those that lived that long; the same with 365 days for 12 months.
 
 | | |
 |---|---|
 | Products vouched for | |
 | Still live after 6 months / 12 months | |
 | Failures, by severity | |
-| Median life of retired products | |
+| Median life of the products that ended (retired or withdrawn) | |
 | Liability terms or insurance, if any | |

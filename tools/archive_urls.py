@@ -14,6 +14,7 @@ Licence: MIT
 """
 import argparse
 import csv
+import http.client
 import json
 import time
 import urllib.error
@@ -30,7 +31,7 @@ def latest_copy(url, timeout=30):
         with urllib.request.urlopen(urllib.request.Request(api, headers={"User-Agent": AGENT}), timeout=timeout) as r:
             snap = json.loads(r.read().decode("utf-8")).get("archived_snapshots", {}).get("closest", {})
             return snap.get("url", "") if snap.get("available") else ""
-    except (urllib.error.URLError, OSError, ValueError):
+    except (urllib.error.URLError, http.client.HTTPException, OSError, ValueError):
         return ""
 
 
@@ -41,7 +42,7 @@ def save_copy(url, timeout=120):
         with urllib.request.urlopen(req, timeout=timeout) as r:
             final = r.geturl()
             return final if "/web/" in final else ""
-    except (urllib.error.URLError, OSError, ValueError):
+    except (urllib.error.URLError, http.client.HTTPException, OSError, ValueError):
         return ""
 
 
@@ -58,16 +59,21 @@ def main():
         raise SystemExit("the register needs the columns url and archive_url")
     done = 0
     for row in rows:
-        url = (row.get("url") or "").strip()
-        if not url.startswith("http") or (row.get("archive_url") or "").strip():
+        cell = (row.get("url") or "").strip()
+        if not cell.startswith("http") or (row.get("archive_url") or "").strip():
             continue
-        copy = latest_copy(url) if args.check_only else (save_copy(url) or latest_copy(url))
-        if copy:
-            row["archive_url"] = copy
+        # a cell may hold several sources separated by ";" (one claim, two reports): archive each
+        urls = [u.strip() for u in cell.split(";") if u.strip().startswith("http")]
+        copies = []
+        for url in urls:
+            copy = latest_copy(url) if args.check_only else (save_copy(url) or latest_copy(url))
+            copies.append(copy)
+            print(("archived " if copy else "not yet  ") + url)
+            if not args.check_only:
+                time.sleep(args.pause)
+        if all(copies):
+            row["archive_url"] = " ; ".join(copies)
             done += 1
-        print(("archived " if copy else "not yet  ") + url)
-        if not args.check_only:
-            time.sleep(args.pause)
     with open(args.claims, "w", newline="", encoding="utf-8") as fh:
         w = csv.DictWriter(fh, fieldnames=fields)
         w.writeheader()

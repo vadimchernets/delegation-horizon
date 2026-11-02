@@ -10,7 +10,7 @@ permissions:
 
 jobs:
   unittest:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04  # Python 3.9 is not available on ubuntu-latest (26.04)
     strategy:
       fail-fast: false
       matrix:
